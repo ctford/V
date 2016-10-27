@@ -21,3 +21,7 @@ We can also lift predicates, which will leave the value untouched but potentiall
     (is (= {:errors #{"Odd"}} ((v-check even? "Odd") (success 1))))
 
 Errors can be any values - strings, maps etc.
+
+## Running tests
+
+    lein test
