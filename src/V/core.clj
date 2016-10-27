@@ -14,13 +14,13 @@
     (apply failure errors)
     (->> args (map :value) (apply f))))
 
-(defn v-lift
+(defn lift
   "Lift a plain function to receive and return validation values."
   [f]
   (fn [& args]
     (v-apply (comp success f) args)))
 
-(defn v-check
+(defn check
   "Lift a plain predicate to return either the original value or an error."
   [ok? error]
   (fn [x]
@@ -29,14 +29,13 @@
       (-> x :value ok? not) (failure error)
       :otherwise x)))
 
-(defn v-try
+(defn exception->error
   "Lift a function that might throw exceptions to return errors instead."
   [f error]
   (fn [& args]
     (try
-      (apply (v-lift f) args)
+      (apply (lift f) args)
       (catch Exception _
         (failure error)))))
 
-(def v-nil? (partial v-check (complement nil?)))
-
+(def nil->error (partial check (complement nil?)))
