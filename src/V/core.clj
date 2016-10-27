@@ -20,10 +20,6 @@
   (fn [& args]
     (v-apply (comp success f) args)))
 
-((v-lift +) (success 1) (success 2))
-((v-lift +) (failure ":-(") (success 2))
-((v-lift +) (success 1) (failure ":-("))
-((v-lift +) (failure ":-/") (failure ":-(") (failure ":-|"))
 
 (defn v-check
   "Lift a plain predicate to return either the original value or an error."
