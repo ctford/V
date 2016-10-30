@@ -35,9 +35,7 @@
     (catch Exception _
       (failure error))))
 
-(defn nil->error
-  [error x]
-  (check (complement nil?) error x))
+(def nil->error (partial check (complement nil?)))
 
 (defn extract
   [f error x]
