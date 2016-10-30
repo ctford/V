@@ -14,8 +14,7 @@
   (->> values (map errors) (reduce set/union nil)))
 
 (defn v-apply
-  "Apply a function that accepts plain values and returns validation values."
-  [f args]
+  [f & args]
   (if-let [errors (all-errors args)]
     (apply failure errors)
     (->> args (map value) (apply f))))
@@ -23,8 +22,7 @@
 (defn lift
   "Lift a plain function to receive and return validation values."
   [f]
-  (fn [& args]
-    (v-apply (comp success f) args)))
+  (partial v-apply (comp success f)))
 
 (defn check
   "Lift a plain predicate to return either the original value or an error."
