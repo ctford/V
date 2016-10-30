@@ -34,12 +34,13 @@
                     (comp (complement nil?) :month) :missing-month
                     (comp (complement nil?) :year) :missing-year)
         checked (mandatory json)
-        result checked]
+        date (v/exception->error #(java.util.Date. (- (:year %) 1900) (:month %) (:day %)) :bad-date)
+        result (date checked)]
     result))
 
 (deftest integration
-  (is (= {:day 2 :month 2 :year 2016} (v/value (parse-interval "{:day 2 :month 2 :year 2016}"))))
-  (is (= #{:missing-day :missing-year} (v/errors (parse-interval "{:month 2}")))))
+  (is (= {:value (java.util.Date. 116 2 3)} (parse-interval "{:day 3 :month 2 :year 2016}")))
+  (is (= {:errors #{:missing-day :missing-year}} (parse-interval "{:month 2}"))))
 
 (lifting)
 (checking)
