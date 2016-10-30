@@ -35,11 +35,16 @@
     (catch Exception _
       (failure error))))
 
-(def check-nil (partial check (complement nil?)))
+(def check-nil
+  "Return an error if the value is nil, otherwise leave it as it is."
+  (partial check (complement nil?)))
 
 (defn extract
+  "Apply a function to a validation value, returning an error on nil."
   [f error x]
   (->> x (lift f) (check-nil error)))
 
-(defn default [d x]
-  (if (errors x) (success d) x))
+(defn default
+  "Give a validation value a default value if it's an error."
+  [v x]
+  (if (errors x) (success v) x))
