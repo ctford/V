@@ -21,28 +21,15 @@
   [f & args]
   (v-apply (comp success f) args))
 
-(defn check*
-  [[ok? error]]
-  (fn [x]
-    (cond
-      (errors x) x
-      (-> x value ok?) x
-      :otherwise (failure error))))
-
-(defn both
-  [a b]
-  (fn [x]
-    (if-let [errors (all-errors [(a x) (b x)])]
-      (apply failure errors)
-      x)))
-
 (defn check
   "Lift plain predicates to return either the original value or an error."
-  [x & xs]
-  ((->> xs
-        (partition 2)
-        (map check*)
-        (reduce both identity)) x))
+  ([x] x)
+  ([ok? error & other-checks]
+   (let [x (last other-checks)]
+     (cond
+       (errors x) x
+       (-> x value ok?) (apply check other-checks)
+       :otherwise (->> other-checks (apply check) errors (apply failure error))))))
 
 (defn exception->error
   "Lift a function that might throw exceptions to return errors instead."
@@ -54,7 +41,7 @@
 
 (defn nil->error
   [error x]
-  (check x (complement nil?) error))
+  (check (complement nil?) error x))
 
 (defn extract
   [f error x]

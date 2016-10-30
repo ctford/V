@@ -10,12 +10,12 @@
   (is (= {:errors #{":-|" ":-/" ":-("}} (v/lift + (v/failure ":-/") (v/failure ":-(") (v/failure ":-|")))))
 
 (deftest checking
-  (is (= {:errors #{"Odd"}} (v/check (v/success 1) even? "Odd")))
-  (is (= {:value 2} (v/check (v/success 2) even? "Odd")))
-  (is (= {:errors #{":-("}} (v/check (v/failure ":-(") even? "Odd")))
-  (is (= {:value 0} (v/check (v/success 0) zero? :non-zero even? :odd)))
-  (is (= {:errors #{:non-zero}} (v/check (v/success 4) zero? :non-zero even? :odd)))
-  (is (= {:errors #{:non-zero :odd}} (v/check (v/success 3) zero? :non-zero even? :odd ))))
+  (is (= {:errors #{"Odd"}} (v/check even? "Odd" (v/success 1))))
+  (is (= {:value 2} (v/check even? "Odd" (v/success 2))))
+  (is (= {:errors #{":-("}} (v/check even? "Odd" (v/failure ":-("))))
+  (is (= {:value 0} (v/check zero? :non-zero even? :odd (v/success 0))))
+  (is (= {:errors #{:non-zero}} (v/check zero? :non-zero even? :odd (v/success 4))))
+  (is (= {:errors #{:non-zero :odd}} (v/check zero? :non-zero even? :odd (v/success 3)))))
 
 (deftest trying
   (is (= {:errors #{"Couldn't parse."}} (v/exception->error #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
