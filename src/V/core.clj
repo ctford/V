@@ -9,10 +9,13 @@
 (defn failure [& errors]
   {:errors (set errors)})
 
+(defn all-errors [values]
+  (->> values (map :errors) (reduce set/union nil)))
+
 (defn v-apply
   "Apply a function that accepts plain values and returns validation values."
   [f args]
-  (if-let [errors (->> args (map :errors) (reduce set/union nil))]
+  (if-let [errors (all-errors args)]
     (apply failure errors)
     (->> args (map :value) (apply f))))
 
@@ -30,9 +33,6 @@
       (:errors x) x
       (-> x :value ok? not) (failure error)
       :otherwise x)))
-
-(defn all-errors [values]
-  (->> values (map :errors) (reduce set/union nil)))
 
 (defn all
   "Turn a seq of checkers into one checker that gathers errors."
