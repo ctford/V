@@ -3,7 +3,7 @@
     [clojure.test :refer [deftest testing is]]
     [V.core :as v]))
 
-(defn parse-date [k m]
+(defn parse-date [m k]
   (let [day (v/extract m :day [k :missing-day])
         month (v/extract m :month [k :missing-month])
         year (v/extract m :year [k :missing-year])
@@ -15,8 +15,8 @@
   (let [value (v/success text)
         json ((v/exception->error load-string [:json :invalid]) value)
         start (v/extract json :start [:start :missing])
-        end (v/default (v/extract json :end [:end :missing]) {:day 1 :month 1 :year 2017})
-        interval ((v/lift list) (parse-date :start start) (parse-date :end end))
+        end (-> json (v/extract :end [:end :missing]) (v/default {:day 1 :month 1 :year 2017}))
+        interval ((v/lift list) (parse-date start :start) (parse-date end :end))
         before #(.before (first %) (second %))]
     ((v/check before [:interval :invalid]) interval)))
 
