@@ -18,8 +18,8 @@
   (is (= {:errors #{:non-zero :odd}} (v/check zero? :non-zero even? :odd (v/success 3)))))
 
 (deftest trying
-  (is (= {:errors #{"Couldn't parse."}} (v/exception->error #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
-  (is (= {:value 8} (v/exception->error #(Integer/parseInt %) "Couldn't parse." (v/success "8")))))
+  (is (= {:errors #{"Couldn't parse."}} (v/catch-exceptions #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
+  (is (= {:value 8} (v/catch-exceptions #(Integer/parseInt %) "Couldn't parse." (v/success "8")))))
 
 (lifting)
 (checking)
