@@ -57,3 +57,6 @@
         (failure error)))))
 
 (def nil->error (partial check (complement nil?)))
+
+(defn extract [f error]
+  (comp (nil->error error) (lift f)))

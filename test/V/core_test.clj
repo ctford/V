@@ -29,14 +29,12 @@
 (defn parse-interval [text]
   (let [value (v/success text)
         json ((v/lift load-string) value)
-        mandatory (v/check
-                    (comp (complement nil?) :day) :missing-day
-                    (comp (complement nil?) :month) :missing-month
-                    (comp (complement nil?) :year) :missing-year)
-        checked (mandatory json)
-        date (v/exception->error #(java.util.Date. (- (:year %) 1900) (:month %) (:day %)) :bad-date)
-        result (date checked)]
-    result))
+        day ((v/extract :day :missing-day) json)
+        month ((v/extract :month :missing-month) json)
+        year ((v/extract :year :missing-year) json)
+        adjust (v/lift #(- % 1900))
+        date (v/exception->error #(java.util.Date. %1 %2 %3) :bad-date)]
+    (date (adjust year) month day)))
 
 (deftest integration
   (is (= {:value (java.util.Date. 116 2 3)} (parse-interval "{:day 3 :month 2 :year 2016}")))
