@@ -7,18 +7,15 @@
 (defn failure [& errors] {:errors (set errors)})
 (def errors :errors)
 
-(defn all-errors [values]
-  (->> values (map errors) (reduce set/union nil)))
-
 (defn lift
-  "Apply a function to validate values."
+  "Apply a function to validation values, returning a validation value on the assumption of success."
   [f & args]
-  (if-let [errors (all-errors args)]
+  (if-let [errors (->> args (map errors) (reduce set/union nil))]
     (apply failure errors)
     (->> args (map value) (apply f) success)))
 
 (defn check
-  "Apply a predicate to a validate value, returning the original value if it succeeds or an error if it fails."
+  "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
   ([x] x)
   ([ok? error & other-checks]
    (let [x (last other-checks)]
