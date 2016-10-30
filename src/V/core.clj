@@ -49,12 +49,11 @@
 
 (defn exception->error
   "Lift a function that might throw exceptions to return errors instead."
-  [f error]
-  (fn [& args]
-    (try
-      (apply (lift f) args)
-      (catch Exception _
-        (failure error)))))
+  [f error & args]
+  (try
+    (apply (lift f) args)
+    (catch Exception _
+      (failure error))))
 
 (def nil->error (partial check (complement nil?)))
 

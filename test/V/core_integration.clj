@@ -8,12 +8,12 @@
         month (v/extract m :month [k :missing-month])
         year (v/extract m :year [k :missing-year])
         adjust (v/lift #(- % 1900))
-        date (v/exception->error #(java.util.Date. %1 %2 %3) [k :bad-date])]
+        date (partial v/exception->error #(java.util.Date. %1 %2 %3) [k :bad-date])]
     (date (adjust year) month day)))
 
 (defn parse-interval [text]
   (let [value (v/success text)
-        json ((v/exception->error load-string [:json :invalid]) value)
+        json (v/exception->error load-string [:json :invalid] value)
         start (v/extract json :start [:start :missing])
         end (-> json (v/extract :end [:end :missing]) (v/default {:day 1 :month 1 :year 2017}))
         interval ((v/lift list) (parse-date start :start) (parse-date end :end))
