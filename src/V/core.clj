@@ -35,11 +35,11 @@
     (catch Exception _
       (failure error))))
 
-(def nil->error (partial check (complement nil?)))
+(def check-nil (partial check (complement nil?)))
 
 (defn extract
   [f error x]
-  (->> x (lift f) (nil->error error)))
+  (->> x (lift f) (check-nil error)))
 
 (defn default [d x]
   (if (errors x) (success d) x))
