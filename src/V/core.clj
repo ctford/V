@@ -44,6 +44,11 @@
         (apply failure errors)
         x))))
 
+(defn checks [ok? error & others]
+  (if others
+    (all [(check ok? error) (apply checks others)])
+    (check ok? error)))
+
 (defn exception->error
   "Lift a function that might throw exceptions to return errors instead."
   [f error]

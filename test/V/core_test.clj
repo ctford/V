@@ -12,7 +12,10 @@
 (deftest checking
   (is (= {:errors #{"Odd"}} ((v/check even? "Odd") (v/success 1))))
   (is (= {:value 2} ((v/check even? "Odd") (v/success 2))))
-  (is (= {:errors #{":-("}} ((v/check even? "Odd") (v/failure ":-(")))))
+  (is (= {:errors #{":-("}} ((v/check even? "Odd") (v/failure ":-("))))
+  (is (= {:value 0} ((v/checks zero? :non-zero even? :odd) (v/success 0))))
+  (is (= {:errors #{:non-zero}} ((v/checks zero? :non-zero even? :odd) (v/success 4))))
+  (is (= {:errors #{:non-zero :odd}} ((v/checks zero? :non-zero even? :odd) (v/success 3)))))
 
 (deftest trying
   (is (= {:errors #{"Couldn't parse."}} ((v/exception->error #(Integer/parseInt %) "Couldn't parse.") (v/success "foo"))))
@@ -23,18 +26,13 @@
   (is (= {:value 17} ((v/nil->error "Nil!") (v/success 17))))
   (is (= {:errors #{":-("}} ((v/nil->error "Nil!") (v/failure ":-(")))))
 
-(deftest alling
-  (is (= {:value 0} ((v/all [(v/check zero? :non-zero) (v/check even? :odd)]) (v/success 0))))
-  (is (= {:errors #{:non-zero}} ((v/all [(v/check zero? :non-zero) (v/check even? :odd)]) (v/success 4))))
-  (is (= {:errors #{:non-zero :odd}} ((v/all [(v/check zero? :non-zero) (v/check even? :odd)]) (v/success 3)))))
-
 (defn parse-interval [text]
   (let [value (v/success text)
         json ((v/lift load-string) value)
-        mandatory (v/all
-                    [(v/check (comp (complement nil?) :day) :missing-day)
-                     (v/check (comp (complement nil?) :month) :missing-month)
-                     (v/check (comp (complement nil?) :year) :missing-year)])
+        mandatory (v/checks
+                    (comp (complement nil?) :day) :missing-day
+                    (comp (complement nil?) :month) :missing-month
+                    (comp (complement nil?) :year) :missing-year)
         checked (mandatory json)
         result checked]
     result))
@@ -47,5 +45,4 @@
 (checking)
 (trying)
 (niling)
-(alling)
 (integration)
