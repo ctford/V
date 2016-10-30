@@ -35,19 +35,19 @@
       :otherwise x)))
 
 (defn all
-  "Turn a seq of checkers into one checker that gathers errors."
-  [checks]
+  [a b]
   (fn [x]
-    (let [check-all (apply juxt checks)
-          errors (->> x check-all all-errors)]
-      (if errors
-        (apply failure errors)
-        x))))
+    (if-let [errors (->> [(a x) (b x)] all-errors)]
+      (apply failure errors)
+      x)))
 
-(defn checks [ok? error & others]
-  (if others
-    (all [(check ok? error) (apply checks others)])
-    (check ok? error)))
+(defn checks
+  "Variadic check."
+  [& xs]
+  (->> xs
+       (partition 2)
+       (map (partial apply check))
+       (reduce all)))
 
 (defn exception->error
   "Lift a function that might throw exceptions to return errors instead."
