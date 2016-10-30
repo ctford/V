@@ -31,9 +31,9 @@
   [ok? error]
   (fn [x]
     (cond
-      (:errors x) x
-      (-> x value ok? not) (failure error)
-      :otherwise x)))
+      (errors x) x
+      (-> x value ok?) x
+      :otherwise (failure error))))
 
 (defn all
   [a b]
