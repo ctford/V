@@ -4,20 +4,21 @@
 (defn success [x]
   {:value x})
 
-(def value :value)
-
 (defn failure [& errors]
   {:errors (set errors)})
 
+(def value :value)
+(def errors :errors)
+
 (defn all-errors [values]
-  (->> values (map :errors) (reduce set/union nil)))
+  (->> values (map errors) (reduce set/union nil)))
 
 (defn v-apply
   "Apply a function that accepts plain values and returns validation values."
   [f args]
   (if-let [errors (all-errors args)]
     (apply failure errors)
-    (->> args (map :value) (apply f))))
+    (->> args (map value) (apply f))))
 
 (defn lift
   "Lift a plain function to receive and return validation values."
@@ -31,7 +32,7 @@
   (fn [x]
     (cond
       (:errors x) x
-      (-> x :value ok? not) (failure error)
+      (-> x value ok? not) (failure error)
       :otherwise x)))
 
 (defn all

@@ -38,8 +38,8 @@
     result))
 
 (deftest integration
-  (is (= {:value {:day 2 :month 2 :year 2016}} (parse-interval "{:day 2 :month 2 :year 2016}")))
-  (is (= {:errors #{:missing-day :missing-year}} (parse-interval "{:month 2}"))))
+  (is (= {:day 2 :month 2 :year 2016} (v/value (parse-interval "{:day 2 :month 2 :year 2016}"))))
+  (is (= #{:missing-day :missing-year} (v/errors (parse-interval "{:month 2}")))))
 
 (lifting)
 (checking)
