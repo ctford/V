@@ -15,7 +15,7 @@
   (let [value (v/success text)
         json ((v/exception->error load-string [:json :invalid]) value)
         start ((v/extract :start [:start :missing]) json)
-        end ((v/extract :end [:end :missing]) json)
+        end (v/default ((v/extract :end [:end :missing]) json) {:day 1 :month 1 :year 2017})
         interval ((v/lift list) (parse-date :start start) (parse-date :end end))
         before #(.before (first %) (second %))]
     ((v/check before [:interval :invalid]) interval)))
@@ -27,9 +27,9 @@
   (testing "Sad paths"
     (is (= (v/failure [:json :invalid])
            (parse-interval "asdfasdfasd")))
-    (is (= (v/failure [:start :missing-day] [:start :missing-year] [:end :missing])
+    (is (= (v/failure [:start :missing-day] [:start :missing-year])
            (parse-interval "{:start {:month 2}}")))
-    (is (= (v/failure [:start :bad-date] [:end :missing])
+    (is (= (v/failure [:start :bad-date])
            (parse-interval "{:start {:day 3 :month \"Foo\" :year 2016}}")))
     (is (= (v/failure [:interval :invalid])
            (parse-interval "{:start {:day 3 :month 4 :year 2016} :end {:day 4 :month 3 :year 2016}}")))))

@@ -60,3 +60,6 @@
 
 (defn extract [f error]
   (comp (nil->error error) (lift f)))
+
+(defn default [x d]
+  (if (errors x) (success d) x))
