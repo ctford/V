@@ -58,8 +58,9 @@
 
 (def nil->error (partial check (complement nil?)))
 
-(defn extract [f error]
-  (comp (nil->error error) (lift f)))
+(defn extract
+  [x f error]
+  ((comp (nil->error error) (lift f)) x))
 
 (defn default [x d]
   (if (errors x) (success d) x))

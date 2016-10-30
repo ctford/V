@@ -4,9 +4,9 @@
     [V.core :as v]))
 
 (defn parse-date [k m]
-  (let [day ((v/extract :day [k :missing-day]) m)
-        month ((v/extract :month [k :missing-month]) m)
-        year ((v/extract :year [k :missing-year]) m)
+  (let [day (v/extract m :day [k :missing-day])
+        month (v/extract m :month [k :missing-month])
+        year (v/extract m :year [k :missing-year])
         adjust (v/lift #(- % 1900))
         date (v/exception->error #(java.util.Date. %1 %2 %3) [k :bad-date])]
     (date (adjust year) month day)))
@@ -14,8 +14,8 @@
 (defn parse-interval [text]
   (let [value (v/success text)
         json ((v/exception->error load-string [:json :invalid]) value)
-        start ((v/extract :start [:start :missing]) json)
-        end (v/default ((v/extract :end [:end :missing]) json) {:day 1 :month 1 :year 2017})
+        start (v/extract json :start [:start :missing])
+        end (v/default (v/extract json :end [:end :missing]) {:day 1 :month 1 :year 2017})
         interval ((v/lift list) (parse-date :start start) (parse-date :end end))
         before #(.before (first %) (second %))]
     ((v/check before [:interval :invalid]) interval)))
