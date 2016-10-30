@@ -4,6 +4,8 @@
 (defn success [x]
   {:value x})
 
+(def value :value)
+
 (defn failure [& errors]
   {:errors (set errors)})
 
@@ -28,6 +30,19 @@
       (:errors x) x
       (-> x :value ok? not) (failure error)
       :otherwise x)))
+
+(defn all-errors [values]
+  (->> values (map :errors) (reduce set/union nil)))
+
+(defn all
+  "Turn a seq of checkers into one checker that gathers errors."
+  [checks]
+  (fn [x]
+    (let [check-all (apply juxt checks)
+          errors (->> x check-all all-errors)]
+      (if errors
+        (apply failure errors)
+        x))))
 
 (defn exception->error
   "Lift a function that might throw exceptions to return errors instead."
