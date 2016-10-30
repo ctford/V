@@ -17,8 +17,8 @@
         start (v/extract json :start [:start :missing])
         end (-> json (v/extract :end [:end :missing]) (v/default {:day 1 :month 1 :year 2017}))
         interval (v/lift list (parse-date start :start) (parse-date end :end))
-        before #(.before (first %) (second %))]
-    (v/check interval before [:interval :invalid])))
+        starts-before-ends #(.before (first %) (second %))]
+    (v/check interval starts-before-ends [:interval :invalid])))
 
 (deftest integration
   (testing "Happy path"
