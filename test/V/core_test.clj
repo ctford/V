@@ -26,23 +26,32 @@
   (is (= {:value 17} ((v/nil->error "Nil!") (v/success 17))))
   (is (= {:errors #{":-("}} ((v/nil->error "Nil!") (v/failure ":-(")))))
 
-(defn parse-date [m]
-  (let [day ((v/extract :day :missing-day) m)
-        month ((v/extract :month :missing-month) m)
-        year ((v/extract :year :missing-year) m)
+(defn parse-date [k m]
+  (let [day ((v/extract :day [k :missing-day]) m)
+        month ((v/extract :month [k :missing-month]) m)
+        year ((v/extract :year [k :missing-year]) m)
         adjust (v/lift #(- % 1900))
-        date (v/exception->error #(java.util.Date. %1 %2 %3) :bad-date)]
+        date (v/exception->error #(java.util.Date. %1 %2 %3) [k :bad-date])]
     (date (adjust year) month day)))
 
 (defn parse-interval [text]
   (let [value (v/success text)
         json ((v/lift load-string) value)
-        start ((v/extract :start :missing-start) json)]
-    (parse-date start)))
+        start ((v/extract :start [:start :missing]) json)
+        end ((v/extract :end [:end :missing]) json)
+        interval ((v/lift list) (parse-date :start start) (parse-date :end end))
+        before #(.before (first %) (second %))]
+    ((v/check before [:interval :invalid]) interval)))
 
 (deftest integration
-  (is (= {:value (java.util.Date. 116 2 3)} (parse-interval "{:start {:day 3 :month 2 :year 2016}}")))
-  (is (= {:errors #{:missing-day :missing-year}} (parse-interval "{:start {:month 2}}"))))
+  (is (= {:value [(java.util.Date. 116 2 3) (java.util.Date. 116 3 4)]}
+         (parse-interval "{:start {:day 3 :month 2 :year 2016} :end {:day 4 :month 3 :year 2016}}")))
+  (is (= {:errors #{[:start :missing-day] [:start :missing-year] [:end :missing]}}
+         (parse-interval "{:start {:month 2}}")))
+  (is (= {:errors #{[:start :bad-date] [:end :missing]}}
+         (parse-interval "{:start {:day 3 :month \"Foo\" :year 2016}}")))
+  (is (= {:errors #{[:interval :invalid]}}
+         (parse-interval "{:start {:day 3 :month 4 :year 2016} :end {:day 4 :month 3 :year 2016}}"))))
 
 (lifting)
 (checking)
