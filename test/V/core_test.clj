@@ -26,19 +26,23 @@
   (is (= {:value 17} ((v/nil->error "Nil!") (v/success 17))))
   (is (= {:errors #{":-("}} ((v/nil->error "Nil!") (v/failure ":-(")))))
 
-(defn parse-interval [text]
-  (let [value (v/success text)
-        json ((v/lift load-string) value)
-        day ((v/extract :day :missing-day) json)
-        month ((v/extract :month :missing-month) json)
-        year ((v/extract :year :missing-year) json)
+(defn parse-date [m]
+  (let [day ((v/extract :day :missing-day) m)
+        month ((v/extract :month :missing-month) m)
+        year ((v/extract :year :missing-year) m)
         adjust (v/lift #(- % 1900))
         date (v/exception->error #(java.util.Date. %1 %2 %3) :bad-date)]
     (date (adjust year) month day)))
 
+(defn parse-interval [text]
+  (let [value (v/success text)
+        json ((v/lift load-string) value)
+        start ((v/extract :start :missing-start) json)]
+    (parse-date start)))
+
 (deftest integration
-  (is (= {:value (java.util.Date. 116 2 3)} (parse-interval "{:day 3 :month 2 :year 2016}")))
-  (is (= {:errors #{:missing-day :missing-year}} (parse-interval "{:month 2}"))))
+  (is (= {:value (java.util.Date. 116 2 3)} (parse-interval "{:start {:day 3 :month 2 :year 2016}}")))
+  (is (= {:errors #{:missing-day :missing-year}} (parse-interval "{:start {:month 2}}"))))
 
 (lifting)
 (checking)
