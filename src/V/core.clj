@@ -43,9 +43,9 @@
   "Lift plain predicates to return either the original value or an error."
   [x & xs]
   ((->> xs
-       (partition 2)
-       (map check*)
-       (reduce both identity)) x))
+        (partition 2)
+        (map check*)
+        (reduce both identity)) x))
 
 (defn exception->error
   "Lift a function that might throw exceptions to return errors instead."
@@ -56,12 +56,12 @@
       (failure error))))
 
 (defn nil->error
-  [x error]
+  [error x]
   (check x (complement nil?) error))
 
 (defn extract
-  [x f error]
-  ((comp #(nil->error % error) (partial lift f)) x))
+  [f error x]
+  (->> x (lift f) (nil->error error)))
 
-(defn default [x d]
+(defn default [d x]
   (if (errors x) (success d) x))
