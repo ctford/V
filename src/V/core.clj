@@ -24,29 +24,28 @@
   [f]
   (partial v-apply (comp success f)))
 
-(defn check
-  "Lift a plain predicate to return either the original value or an error."
-  [ok? error]
+(defn check*
+  [[ok? error]]
   (fn [x]
     (cond
       (errors x) x
       (-> x value ok?) x
       :otherwise (failure error))))
 
-(defn all
+(defn both
   [a b]
   (fn [x]
     (if-let [errors (->> [(a x) (b x)] all-errors)]
       (apply failure errors)
       x)))
 
-(defn checks
-  "Variadic check."
+(defn check
+  "Lift plain predicates to return either the original value or an error."
   [& xs]
   (->> xs
        (partition 2)
-       (map (partial apply check))
-       (reduce all)))
+       (map check*)
+       (reduce both)))
 
 (defn exception->error
   "Lift a function that might throw exceptions to return errors instead."
