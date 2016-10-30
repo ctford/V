@@ -1,13 +1,10 @@
 (ns V.core
   (:require [clojure.set :as set]))
 
-(defn success [x]
-  {:value x})
-
-(defn failure [& errors]
-  {:errors (set errors)})
-
+(defn success [x] {:value x})
 (def value :value)
+
+(defn failure [& errors] {:errors (set errors)})
 (def errors :errors)
 
 (defn all-errors [values]
@@ -35,7 +32,7 @@
 (defn both
   [a b]
   (fn [x]
-    (if-let [errors (->> [(a x) (b x)] all-errors)]
+    (if-let [errors (all-errors [(a x) (b x)])]
       (apply failure errors)
       x)))
 
