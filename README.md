@@ -1,5 +1,7 @@
 # V
 
+[![Build Status](https://travis-ci.org/ctford/v.png)](https://travis-ci.org/ctford/v)
+
 A Clojure validation library.
 
 ## Usage
