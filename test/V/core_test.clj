@@ -3,11 +3,11 @@
     [clojure.test :refer [deftest testing is are]]
     [V.core :as v]))
 
-(deftest lifting
-  (is (= (v/success 3) (v/lift + (v/success 1) (v/success 2))))
-  (is (= (v/failure ":-(") (v/lift + (v/failure ":-(") (v/success 2))))
-  (is (= (v/failure ":-(") (v/lift + (v/success 1) (v/failure ":-("))))
-  (is (= (v/failure ":-|" ":-/" ":-(") (v/lift + (v/failure ":-/") (v/failure ":-(") (v/failure ":-|")))))
+(deftest fmapping
+  (is (= (v/success 3) (v/fmap + (v/success 1) (v/success 2))))
+  (is (= (v/failure ":-(") (v/fmap + (v/failure ":-(") (v/success 2))))
+  (is (= (v/failure ":-(") (v/fmap + (v/success 1) (v/failure ":-("))))
+  (is (= (v/failure ":-|" ":-/" ":-(") (v/fmap + (v/failure ":-/") (v/failure ":-(") (v/failure ":-|")))))
 
 (deftest checking
   (is (= (v/failure "Odd") (v/check even? "Odd" (v/success 1))))
@@ -21,6 +21,6 @@
   (is (= (v/failure "Couldn't parse.") (v/catch-exceptions #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
   (is (= (v/success 8) (v/catch-exceptions #(Integer/parseInt %) "Couldn't parse." (v/success "8")))))
 
-(lifting)
+(fmapping)
 (checking)
 (trying)

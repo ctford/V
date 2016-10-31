@@ -7,7 +7,7 @@
 (defn failure [& errors] {:errors (set errors)})
 (def errors :errors)
 
-(defn lift
+(defn fmap
   "Apply a function to validation values, returning a validation value on the assumption of success."
   [f & args]
   (if-let [errors (->> args (map errors) (reduce set/union nil))]
@@ -28,7 +28,7 @@
   "Apply a function to validation values, returning an error if an exception is thrown."
   [f error & args]
   (try
-    (apply (partial lift f) args)
+    (apply (partial fmap f) args)
     (catch Exception _
       (failure error))))
 
@@ -39,7 +39,7 @@
 (defn extract
   "Apply a function to a validation value, returning an error on nil."
   [f error x]
-  (->> x (lift f) (check-nil error)))
+  (->> x (fmap f) (check-nil error)))
 
 (defn default
   "Give a validation value a default value if it's an error."
