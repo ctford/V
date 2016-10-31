@@ -1,7 +1,7 @@
-(ns V.core-test
+(ns V.validation-test
   (:require
     [clojure.test :refer [deftest testing is]]
-    [V.core :as v]))
+    [V.validation :as v]))
 
 (deftest fmapping
   (is (= (v/success 3) (v/fmap + (v/success 1) (v/success 2))))

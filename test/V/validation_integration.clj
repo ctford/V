@@ -1,7 +1,7 @@
-(ns V.core-integration
+(ns V.validation-integration
   (:require
     [clojure.test :refer [deftest testing is]]
-    [V.core :as v]))
+    [V.validation :as v]))
 
 (defn parse-date [m k]
   (let [day (->> m (v/extract :day [k :missing-day]))

@@ -1,4 +1,4 @@
-(ns V.core
+(ns V.validation
   (:require [clojure.set :as set]))
 
 (defn success [x] {:value x})
