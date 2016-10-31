@@ -22,8 +22,8 @@
 (defn fmap
   "Apply a function to validation values, returning a validation value on the assumption of success."
   [f & args]
-  (if-let [errors (->> args (map errors) (reduce set/union nil))]
-    (apply failure errors)
+  (if-let [combined-errors (->> args (map errors) (reduce set/union nil))]
+    (apply failure combined-errors)
     (->> args (map value) (apply f) success)))
 
 (defn check
