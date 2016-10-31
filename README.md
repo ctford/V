@@ -1,6 +1,6 @@
 # V
 
-[![Build Status](https://travis-ci.org/ctford/v.png)](https://travis-ci.org/ctford/v)
+[![Build Status](https://travis-ci.org/ctford/V.png)](https://travis-ci.org/ctford/V)
 
 A Clojure validation library.
 
