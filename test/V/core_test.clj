@@ -18,8 +18,10 @@
   (is (= (v/failure :non-zero :odd) (v/check zero? :non-zero even? :odd (v/success 3)))))
 
 (deftest trying
-  (is (= (v/failure "Couldn't parse.") (v/catch-all-exceptions #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
-  (is (= (v/success 8) (v/catch-all-exceptions #(Integer/parseInt %) "Couldn't parse." (v/success "8")))))
+  (is (= (v/failure "Couldn't parse.") (v/catch-exception Exception #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
+  (is (= (v/success 8) (v/catch-exception Exception #(Integer/parseInt %) "Couldn't parse." (v/success "8"))))
+  (is (= (v/failure "Couldn't parse.") (v/catch-any-exception #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
+  (is (= (v/success 8) (v/catch-any-exception #(Integer/parseInt %) "Couldn't parse." (v/success "8")))))
 
 (deftest nil-checking
   (is (= (v/success 1) (v/check-nil :whoops (v/success 1))))

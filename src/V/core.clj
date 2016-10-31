@@ -24,7 +24,7 @@
        (-> x value ok?) (apply check other-checks)
        :otherwise (->> other-checks (apply check) errors (apply failure error))))))
 
-(defmacro catch-exceptions
+(defmacro catch-exception
   "Apply a function to validation values, returning an error if a specified exception is thrown."
   [exception-type f error & args]
   `(try
@@ -32,10 +32,10 @@
      (catch ~exception-type ~'_
        (failure ~error))))
 
-(defmacro catch-all-exceptions
+(defmacro catch-any-exception
   "Apply a function to validation values, returning an error if any exception is thrown."
   [f error & args]
-  `(catch-exceptions Exception ~f ~error ~@args))
+  `(catch-exception Exception ~f ~error ~@args))
 
 (def check-nil
   "Return an error if the value is nil, otherwise leave it as it is."
