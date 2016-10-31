@@ -25,7 +25,7 @@ V can turn functions that throw exceptions into ones that return validation erro
 V also lifts predicates, which will leave the value untouched but potentially return a validation error:
 
     (is (= (v/failure "Odd")
-           (v/check-nil even? "Odd" (v/success 1))))
+           (v/check even? "Odd" (v/success 1))))
 
 Errors can be any values - strings, maps etc.
 
