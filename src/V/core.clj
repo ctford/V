@@ -24,7 +24,7 @@
        (-> x value ok?) (apply check other-checks)
        :otherwise (->> other-checks (apply check) errors (apply failure error))))))
 
-(defn catch-exceptions
+(defn catch-all-exceptions
   "Apply a function to validation values, returning an error if an exception is thrown."
   [f error & args]
   (try
