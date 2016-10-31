@@ -1,11 +1,23 @@
 (ns V.validation
   (:require [clojure.set :as set]))
 
-(defn success [x] {:value x})
-(def value :value)
+(defn success
+  "Return a successful validation value."
+  [x]
+  {:value x})
 
-(defn failure [& errors] {:errors (set errors)})
-(def errors :errors)
+(def value
+  "Return the value of a validation value, or nil if it's a failure."
+  :value)
+
+(defn failure
+  "Return a failure validation value."
+  [& errors]
+  {:errors (set errors)})
+
+(def errors
+  "Return the errors of a validation value, or nil if it's a success."
+  :errors)
 
 (defn fmap
   "Apply a function to validation values, returning a validation value on the assumption of success."
