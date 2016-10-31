@@ -21,6 +21,10 @@
   (is (= (v/failure "Couldn't parse.") (v/catch-exceptions #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
   (is (= (v/success 8) (v/catch-exceptions #(Integer/parseInt %) "Couldn't parse." (v/success "8")))))
 
+(deftest defaulting
+  (is (= (v/success 5) (v/default (v/success 5) (v/failure :whoops))))
+  (is (= (v/success 6) (v/default (v/success 5) (v/success 6)))))
+
 (fmapping)
 (checking)
 (trying)
