@@ -22,9 +22,17 @@
   (is (= (v/success 8) (v/catch-exceptions #(Integer/parseInt %) "Couldn't parse." (v/success "8")))))
 
 (deftest defaulting
-  (is (= (v/success 5) (v/default (v/success 5) (v/failure :whoops))))
+  (is (= (v/success 5) (v/default 5 (v/failure :whoops))))
   (is (= (v/success 6) (v/default (v/success 5) (v/success 6)))))
+
+(deftest extracting
+  (is (= (v/success 3) (v/extract :x :whoops (v/success {:x 3 :y 8}))))
+  (is (= (v/success 3) (v/extract first :whoops (v/success [3 4 5]))))
+  (is (= (v/failure :yikes) (v/extract :x :whoops (v/failure :yikes))))
+  (is (= (v/failure :whoops) (v/extract :z :whoops (v/success {:x 3 :y 8})))))
 
 (fmapping)
 (checking)
 (trying)
+(defaulting)
+(extracting)
