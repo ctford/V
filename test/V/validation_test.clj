@@ -35,6 +35,11 @@
   (is (= (v/failure :whoops) (v/check-nil :whoops (v/success nil))))
   (is (= (v/failure :yikes) (v/check-nil :whoops (v/failure :yikes)))))
 
+(deftest focusing
+  (is (= (v/failure "Odd") (v/focus :x even? "Odd" (v/success {:x 1}))))
+  (is (= (v/failure :whoops) (v/focus :x even? "Odd" (v/failure :whoops))))
+  (is (= (v/success {:x 2}) (v/focus :x even? "Odd" (v/success {:x 2})))))
+
 (deftest extracting
   (is (= (v/success 3) (v/extract :x :whoops (v/success {:x 3 :y 8}))))
   (is (= (v/success 3) (v/extract first :whoops (v/success [3 4 5]))))
@@ -51,3 +56,4 @@
 (nil-checking)
 (extracting)
 (defaulting)
+(focusing)
