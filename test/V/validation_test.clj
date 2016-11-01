@@ -27,9 +27,9 @@
          (v/catch-exception NumberFormatException #(Integer/parseInt %) "Couldn't parse." (v/success "8")))))
 
 (deftest nil-checking
-  (is (= (v/success 1) (v/check-nil :whoops (v/success 1))))
-  (is (= (v/failure :whoops) (v/check-nil :whoops (v/success nil))))
-  (is (= (v/failure :yikes) (v/check-nil :whoops (v/failure :yikes)))))
+  (is (= (v/success 1) (v/check-not nil? :whoops (v/success 1))))
+  (is (= (v/failure :whoops) (v/check-not nil? :whoops (v/success nil))))
+  (is (= (v/failure :yikes) (v/check-not nil? :whoops (v/failure :yikes)))))
 
 (deftest extracting
   (is (= (v/success 3) (v/extract :x :whoops (v/success {:x 3 :y 8}))))
