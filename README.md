@@ -24,9 +24,6 @@ V can turn functions that throw exceptions into ones that return validation erro
 
 ```clojure
 (is (= (v/failure "Couldn't parse.")
-       (v/catch-any-exception #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
-
-(is (= (v/failure "Couldn't parse.")
        (v/catch-exception NumberFormatException #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
 ```
 

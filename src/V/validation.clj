@@ -38,11 +38,6 @@
        (-> x value ok?) (apply check other-checks)
        :otherwise (->> other-checks (apply check) errors (apply failure error))))))
 
-(defn focus
-  "Apply a predicate to a target in a validation value, returning the original value if it succeeds or an error if it fails."
-  [target ok? error x]
-  (check (comp ok? target) error x))
-
 (defmacro catch-exception
   "Apply a function to validation values, returning an error if a specified exception is thrown."
   [exception-type f error & args]
@@ -50,11 +45,6 @@
      (fmap ~f ~@args)
      (catch ~exception-type ~'_
        (failure ~error))))
-
-(defmacro catch-any-exception
-  "Apply a function to validation values, returning an error if any exception is thrown."
-  [f error & args]
-  `(catch-exception Exception ~f ~error ~@args))
 
 (def check-nil
   "Return an error if the value is nil, otherwise leave it as it is."
