@@ -6,27 +6,27 @@
 (defn date [y m d]
   (java.util.Date. y m d))
 
-(defn between? [a b]
+(defn within? [a b]
   (fn [x] (and (number? x) (<= a x b))))
 
 (defn parse-date [k m]
-  (let [day   (->> m (v/extract :day           [k :missing-day])
-                     (v/check (between? 1 32)  [k :bad-date]))
-        month (->> m (v/extract :month         [k :missing-month])
-                     (v/check (between? 1 13)  [k :bad-date]))
-        year  (->> m (v/extract :year          [k :missing-year])
-                     (v/fmap #(- % 1900))
-                     (v/check (between? 1 117) [k :bad-date]))]
+  (let [day   (->> m (v/extract :day                [k :missing-day])
+                     (v/check   (within? 1 31)      [k :bad-date]))
+        month (->> m (v/extract :month              [k :missing-month])
+                     (v/check   (within? 1 12)      [k :bad-date]))
+        year  (->> m (v/extract :year               [k :missing-year])
+                     (v/check   (within? 1900 2017) [k :bad-year])
+                     (v/fmap   #(- % 1900)))]
     (v/catch-exception ClassCastException date [k :bad-date] year month day)))
 
 (defn parse-interval [text]
   (let [json  (->> (v/success text)
                    (v/catch-exception RuntimeException load-string [:json :invalid]))
         start (->> json
-                   (v/extract :start [:start :missing])
+                   (v/extract  :start [:start :missing])
                    (parse-date :start))
         end   (->> json
-                   (v/extract :end [:end :missing])
+                   (v/extract  :end [:end :missing])
                    (v/default {:day 1 :month 1 :year 2017})
                    (parse-date :end))]
     (->> (v/fmap vector start end)
