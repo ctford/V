@@ -37,10 +37,11 @@
   "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
   ([x] x)
   ([x ok? error & other-checks]
-   (cond
-     (errors x) x
-     (-> x value ok?) (apply check x other-checks)
-     :otherwise (->> other-checks (apply check x) errors (apply failure error)))))
+   (let [others (apply check x other-checks)]
+     (cond
+       (errors x) x
+       (-> x value ok?) others
+       :otherwise (->> others errors (apply failure error))))))
 
 (defn check-not
   "Apply a predicate to a validation value, returning the original value if it fails or an error if it fails."
