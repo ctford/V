@@ -17,6 +17,11 @@
   (is (= (v/failure :whoops) (v/check-not nil? :whoops (v/success nil))))
   (is (= (v/failure :yikes) (v/check-not nil? :whoops (v/failure :yikes)))))
 
+(deftest combining
+  (is (= (v/failure :whoops) (v/both (partial v/check even? :odd) (partial v/check zero? :mag) (v/failure :whoops))))
+  (is (= (v/failure :mag :odd) (v/both (partial v/check even? :odd) (partial v/check zero? :mag) (v/success 1))))
+  (is (= (v/success 0) (v/both (partial v/check even? :odd) (partial v/check zero? :mag) (v/success 0)))))
+
 (deftest trying
   (is (= (v/failure "Couldn't parse.")
          (v/catch-exception NumberFormatException #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
@@ -38,6 +43,7 @@
 
 (fmapping)
 (checking)
+(combining)
 (trying)
 (extracting)
 (defaulting)

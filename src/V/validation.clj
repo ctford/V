@@ -21,12 +21,16 @@
   [[k v]]
   (when (= k :errors) v))
 
+(defn v-apply
+  [f args]
+  (if-let [combined-errors (->> args (map errors) (reduce set/union nil))]
+    (apply failure combined-errors)
+    (->> args (map value) (apply f))))
+
 (defn fmap
   "Apply a function to validation values, returning a validation value on the assumption of success."
   [f & args]
-  (if-let [combined-errors (->> args (map errors) (reduce set/union nil))]
-    (apply failure combined-errors)
-    (->> args (map value) (apply f) success)))
+  (v-apply (comp success f) args))
 
 (defn check
   "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
@@ -37,6 +41,14 @@
        (errors x) x
        (-> x value ok?) (apply check other-checks)
        :otherwise (->> other-checks (apply check) errors (apply failure error))))))
+
+(defn check* [ok? error x]
+  (if (or (errors x) (-> x value ok?))
+    x
+    (failure error)))
+
+(defn both [check1 check2 x]
+  (v-apply (constantly x) [(check1 x) (check2 x)]))
 
 (defn check-not
   "Apply a predicate to a validation value, returning the original value if it fails or an error if it fails."
