@@ -47,8 +47,8 @@
     x
     (failure error)))
 
-(defn both [check1 check2 x]
-  (v-apply (constantly x) [(check1 x) (check2 x)]))
+(defn all [checks x]
+  (v-apply (constantly x) ((apply juxt checks) x)))
 
 (defn check-not
   "Apply a predicate to a validation value, returning the original value if it fails or an error if it fails."
