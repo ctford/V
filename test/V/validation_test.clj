@@ -18,9 +18,23 @@
   (is (= (v/failure :yikes) (v/check-not nil? :whoops (v/failure :yikes)))))
 
 (deftest combining
-  (is (= (v/failure :whoops) (v/all [(partial v/check even? :odd) (partial v/check zero? :mag)] (v/failure :whoops))))
-  (is (= (v/failure :mag :odd) (v/all [(partial v/check even? :odd) (partial v/check zero? :mag)] (v/success 1))))
-  (is (= (v/success 0) (v/all [(partial v/check even? :odd) (partial v/check zero? :mag)] (v/success 0)))))
+  (is (= (v/success 0)
+         (let [x (v/success 0)]
+           (-> x
+               (v/unless
+                 (v/check even? :odd x)
+                 (v/check zero? :mag x))))))
+  (is (= (v/failure :whoops)
+         (let [x (v/failure :whoops)]
+           (-> x
+               (v/unless
+                 (v/check even? :odd x)
+                 (v/check zero? :mag x))))))
+  (is (= (v/failure :odd :mag)
+         (let [x (v/success -1)]
+           (-> x (v/unless
+                   (v/check even? :odd x)
+                   (v/check zero? :mag x)))))))
 
 (deftest trying
   (is (= (v/failure "Couldn't parse.")
