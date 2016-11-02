@@ -33,31 +33,26 @@
   [f & args]
   (v-apply (comp success f) args))
 
-(defn unless
-  "Return x unless there are errors in the checks."
-  [x & checks]
-  (v-apply (constantly x) checks))
-
 (defn check
   "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
-  [ok? error x]
+  [x ok? error]
   (if (or (errors x) (-> x value ok?))
     x
     (failure error)))
 
 (defn check-not
   "Apply a predicate to a validation value, returning the original value if it fails or an error if it fails."
-  [ok? error x]
-  (check (complement ok?) error x))
+  [x ok? error]
+  (check x (complement ok?) error))
 
 (defn extract
   "Apply a function to a validation value, returning an error on nil."
-  [f error x]
-  (->> x (fmap f) (check-not nil? error)))
+  [x f error]
+  (-> (fmap f x) (check-not nil? error)))
 
 (defn default
   "Give a validation value a default value if it's an error."
-  [v x]
+  [x v]
   (if (errors x) (success v) x))
 
 (defmacro catch-exception
