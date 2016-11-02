@@ -10,12 +10,19 @@
   (is (= (v/failure ":-|" ":-/" ":-(") (v/fmap + (v/failure ":-/") (v/failure ":-(") (v/failure ":-|")))))
 
 (deftest checking
-  (is (= (v/failure "Odd") (-> (v/success 1) (v/check even? "Odd"))))
-  (is (= (v/success 2) (-> (v/success 2) (v/check even? "Odd"))))
-  (is (= (v/failure ":-(") (-> (v/failure ":-(") (v/check even? "Odd"))))
-  (is (= (v/success 1) (-> (v/success 1) (v/check-not nil? :whoops))))
-  (is (= (v/failure :whoops) (-> (v/success nil) (v/check-not nil? :whoops))))
-  (is (= (v/failure :yikes) (-> (v/failure :yikes) (v/check-not nil? :whoops)))))
+  (testing "Positive checks"
+    (is (= (v/failure "Odd") (-> (v/success 1) (v/check even? "Odd"))))
+    (is (= (v/success 2) (-> (v/success 2) (v/check even? "Odd"))))
+    (is (= (v/failure ":-(") (-> (v/failure ":-(") (v/check even? "Odd")))))
+  (testing "Multiple positive checks"
+    (is (= (v/failure "Odd" "Non-zero") (-> (v/success 1) (v/check even? "Odd" zero? "Non-zero"))))
+    (is (= (v/success 0) (-> (v/success 0) (v/check even? "Odd" zero? "Non-zero"))))
+    (is (= (v/failure ":-(") (-> (v/failure ":-(") (v/check even? "Odd" zero? "Non-zero")))))
+  (testing "Negative checks"
+    (is (= (v/success 1) (-> (v/success 1) (v/check-not nil? :whoops))))
+    (is (= (v/failure :whoops) (-> (v/success nil) (v/check-not nil? :whoops))))
+    (is (= (v/failure :yikes) (-> (v/failure :yikes) (v/check-not nil? :whoops)))))
+  )
 
 (deftest trying
   (is (= (v/failure "Couldn't parse.")
