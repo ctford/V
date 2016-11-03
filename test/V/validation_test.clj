@@ -22,7 +22,11 @@
     (is (= (v/success 1) (-> (v/success 1) (v/check-not nil? :whoops))))
     (is (= (v/failure :whoops) (-> (v/success nil) (v/check-not nil? :whoops))))
     (is (= (v/failure :yikes) (-> (v/failure :yikes) (v/check-not nil? :whoops)))))
-  )
+  (testing "Multiple negative checks"
+    (is (= (v/success 1) (-> (v/success 1) (v/check-not nil? :whoops (partial = 2)))))
+    (is (= (v/failure :whoops) (-> (v/success 0) (v/check-not zero? :whoops (partial = 1) :yikes))))
+    (is (= (v/failure :yikes) (-> (v/failure :yikes) (v/check-not nil? :whoops (partial = 1) :ouch))))
+    (is (= (v/failure :whoops :ouch) (-> (v/success 0) (v/check-not even? :whoops zero? :ouch))))))
 
 (deftest trying
   (is (= (v/failure "Couldn't parse.")
