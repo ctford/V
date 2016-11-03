@@ -46,11 +46,10 @@
 (defn check-not
   "Apply a predicate to a validation value, returning the original value if it fails or an error if it fails."
   [x & negative-checks]
-  (letfn [(flip-checks [[ok? error & checks]]
-            (if ok?
-              (concat [(complement ok?) error] (flip-checks checks))
-              '()))]
-    (apply check x (flip-checks negative-checks))))
+  (letfn [(flip [checks]
+            (when-let [[ok? error & other-checks] checks]
+              (concat [(complement ok?) error] (flip other-checks))))]
+    (apply check x (flip negative-checks))))
 
 (defn extract
   "Apply a function to a validation value, returning an error on nil."
