@@ -31,7 +31,9 @@ V also lifts predicates, which will leave the value untouched but potentially re
 
 ```clojure
 (is (= (v/failure "Odd")
-       (v/check even? "Odd" (v/success 1))))
+       (-> (v/success 1)
+           (v/check number? "Non-numeric"
+                    even?   "Odd")))
 ```
 
 Errors can be any values - strings, maps etc.
