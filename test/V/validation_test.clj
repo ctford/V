@@ -3,7 +3,7 @@
     [clojure.test :refer [deftest testing is]]
     [V.validation :as v]))
 
-(def ++ (v/lift +))
+(v/def-lift +)
 
 (deftest mapping
   (testing "Fmapping"
@@ -12,10 +12,10 @@
     (is (= (v/failure ":-(") (v/fmap + (v/success 1) (v/failure ":-("))))
     (is (= (v/failure ":-|" ":-/" ":-(") (v/fmap + (v/failure ":-/") (v/failure ":-(") (v/failure ":-|")))))
   (testing "Lifting"
-    (is (= (v/success 3) (++ (v/success 1) (v/success 2))))
-    (is (= (v/failure ":-(") (++ (v/failure ":-(") (v/success 2))))
-    (is (= (v/failure ":-(") (++ (v/success 1) (v/failure ":-("))))
-    (is (= (v/failure ":-|" ":-/" ":-(") (++ (v/failure ":-/") (v/failure ":-(") (v/failure ":-|"))))) )
+    (is (= (v/success 3) (+_ (v/success 1) (v/success 2))))
+    (is (= (v/failure ":-(") (+_ (v/failure ":-(") (v/success 2))))
+    (is (= (v/failure ":-(") (+_ (v/success 1) (v/failure ":-("))))
+    (is (= (v/failure ":-|" ":-/" ":-(") (+_ (v/failure ":-/") (v/failure ":-(") (v/failure ":-|"))))) )
 
 (deftest checking
   (testing "Positive checks"
