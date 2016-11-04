@@ -33,6 +33,11 @@
   [f & args]
   (v-apply (comp success f) args))
 
+(defn lift
+  "Lift a function to apply to validation values, returning a validation value on the assumption of success."
+  [f]
+  (partial fmap f))
+
 (defn check
   "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
   ([x] x)
