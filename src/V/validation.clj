@@ -38,8 +38,12 @@
   [f]
   (partial fmap f))
 
-(defmacro def-lift [f]
-  `(def ~(symbol (str \| (name f) \|)) (lift ~f)))
+(defmacro def-lift
+  "Lift functions and bind them to names of the form |f|."
+  [& fs]
+  `(do
+     ~@(for [f fs]
+          `(def ~(symbol (str \| (name f) \|)) (lift ~f)))))
 
 (defn check
   "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."

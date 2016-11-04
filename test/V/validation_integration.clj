@@ -9,8 +9,7 @@
 (defn within? [a b]
   (fn [x] (and (number? x) (<= a x b))))
 
-(v/def-lift vector)
-(v/def-lift -)
+(v/def-lift vector -)
 
 (defn parse-date [m k]
   (let [day   (-> m (v/extract :day                [k :missing-day])
