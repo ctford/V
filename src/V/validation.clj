@@ -70,5 +70,5 @@
   [exception-type f error & args]
   `(try
      (fmap ~f ~@args)
-     (catch ~exception-type ~'_
+     (catch ~exception-type _#
        (failure ~error))))
