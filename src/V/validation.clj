@@ -39,7 +39,7 @@
   (partial fmap f))
 
 (defmacro def-lift [f]
-  `(def ~(symbol (str (name f) \_)) (lift ~f)))
+  `(def ~(symbol (str \| (name f) \|)) (lift ~f)))
 
 (defn check
   "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
@@ -51,18 +51,10 @@
        (-> x value ok?) others
        :otherwise (->> others errors (apply failure error))))))
 
-(defn check-not
-  "Apply a predicate to a validation value, returning the original value if it fails or an error if it fails."
-  [x & negative-checks]
-  (letfn [(flip [checks]
-            (when-let [[ok? error & other-checks] checks]
-              (concat [(complement ok?) error] (flip other-checks))))]
-    (apply check x (flip negative-checks))))
-
 (defn extract
   "Apply a function to a validation value, returning an error on nil."
   [x f error]
-  (-> (fmap f x) (check-not nil? error)))
+  (-> (fmap f x) (check (comp not nil?) error)))
 
 (defn default
   "Give a validation value a default value if it's an error."
