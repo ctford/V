@@ -3,13 +3,17 @@
     [clojure.test :refer [deftest testing is]]
     [V.validation :as v]))
 
-(defn date [y m d]
-  (java.util.Date. y m d))
+(v/def-lift vector, -)
+
+(defn date [k y m d]
+  (v/catch-exception
+    ClassCastException
+    #(java.util.Date. %1 %2 %3)
+    [k :bad-date]
+    y m d))
 
 (defn within? [a b]
   (fn [x] (and (number? x) (<= a x b))))
-
-(v/def-lift vector -)
 
 (defn parse-date [m k]
   (let [day   (-> m (v/extract :day                [k :missing-day])
@@ -18,7 +22,7 @@
                     (v/check   (within? 1 12)      [k :bad-date]))
         year  (-> m (v/extract :year               [k :missing-year])
                     (v/check   (within? 1900 2017) [k :bad-year]))]
-    (v/catch-exception ClassCastException date [k :bad-date] (|-| year (v/success 1900)) month day)))
+    (date k (|-| year (v/success 1900)) month day)))
 
 (defn parse-interval [text]
   (let [json  (v/catch-exception RuntimeException load-string [:json :invalid] (v/success text))
@@ -29,12 +33,12 @@
                   (v/extract  :end [:end :missing])
                   (v/default {:day 1 :month 1 :year 2017})
                   (parse-date :end))]
-    (-> (|vector| start end)
+    (-> (tuple start end)
         (v/check #(.before (first %) (second %)) [:interval :invalid]))))
 
 (deftest integration
   (testing "Happy path"
-    (is (= (v/success [(date 116 2 3) (date 116 3 4)])
+    (is (= (v/success [(java.util.Date. 116 2 3) (java.util.Date. 116 3 4)])
            (parse-interval "{:start {:day 3 :month 2 :year 2016} :end {:day 4 :month 3 :year 2016}}"))))
   (testing "Sad paths"
     (is (= (v/failure [:json :invalid])
