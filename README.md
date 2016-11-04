@@ -42,8 +42,8 @@ V also checks validation values using predicates, which leave the value untouche
 
 (is (= (v/failure "I hate Mondays")
        (-> (v/success "Monday")
-           (v/check-not (partial = "Monday")    "I hate Mondays"
-                        (partial = "Wednesday") "Hump day"
+           (v/check (not= "Monday")    "I hate Mondays"
+                    (not= "Wednesday") "Hump day"
 ```
 
 Errors can be any values - strings, maps, tuples etc.
