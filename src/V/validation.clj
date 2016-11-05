@@ -40,8 +40,8 @@
 
 (defmacro with-lift
   "Shadow fs with lifted versions of themselves within a lexical scope."
-  [fs & exprs]
-  `(let [~@(interleave fs (for [f fs] `(lift ~f)))]
+  [lift fs & exprs]
+  `(let [~@(interleave fs (for [f fs] `(~lift ~f)))]
      ~@exprs))
 
 (defn check
