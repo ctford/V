@@ -14,17 +14,17 @@
   (fn [x] (and (number? x) (<= a x b))))
 
 (defn parse-date [m k]
-  (v/with-lift -
+  (v/with-lift [-]
     (let [day   (-> m (v/extract :day                [k :missing-day])
-                    (v/check   (within? 1 31)      [k :bad-date]))
+                      (v/check   (within? 1 31)      [k :bad-date]))
           month (-> m (v/extract :month              [k :missing-month])
-                    (v/check   (within? 1 12)      [k :bad-date]))
+                      (v/check   (within? 1 12)      [k :bad-date]))
           year  (-> m (v/extract :year               [k :missing-year])
-                    (v/check   (within? 1900 2017) [k :bad-year]))]
+                      (v/check   (within? 1900 2017) [k :bad-year]))]
       (date k (- year (v/success 1900)) month day))))
 
 (defn parse-interval [text]
-  (v/with-lift vector
+  (v/with-lift [vector]
     (let [json  (v/catch-exception RuntimeException load-string [:json :invalid] (v/success text))
           start (-> json
                     (v/extract  :start [:start :missing])

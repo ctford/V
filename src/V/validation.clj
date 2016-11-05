@@ -38,15 +38,10 @@
   [f]
   (partial fmap f))
 
-(defmacro def-lift
-  "Lift functions and bind them to names of the form |f|."
-  [& fs]
-  `(do
-     ~@(for [f fs]
-          `(def ~(symbol (str \| (name f) \|)) (lift ~f)))))
-
-(defmacro with-lift [f & exprs]
-  `(let [~f (lift ~f)]
+(defmacro with-lift
+  "Shadow fs with lifted versions of themselves within a lexical scope."
+  [fs & exprs]
+  `(let [~@(interleave fs (for [f fs] `(lift ~f)))]
      ~@exprs))
 
 (defn check
