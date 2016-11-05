@@ -45,6 +45,10 @@
      ~@(for [f fs]
           `(def ~(symbol (str \| (name f) \|)) (lift ~f)))))
 
+(defmacro with-lift [f & exprs]
+  `(let [~f (lift ~f)]
+     ~@exprs))
+
 (defn check
   "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
   ([x] x)
