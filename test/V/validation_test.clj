@@ -17,20 +17,15 @@
       (is (= (v/failure ":-|" ":-/" ":-(") (+ (v/failure ":-/") (v/failure ":-(") (v/failure ":-|")))))) )
 
 (deftest checking
-  (testing "Positive checks"
-    (v/with-lift v/check* [even?]
-      (is (= (v/failure "Odd") (-> (v/success 1) (even? "Odd"))))
-      (is (= (v/success 2) (-> (v/success 2) (even? "Odd"))))
-      (is (= (v/failure ":-(") (-> (v/failure ":-(") (even? "Odd"))))))
-  (testing "Multiple positive checks"
-    (v/with-lift v/check* [even? zero?]
-      (let [x (v/success 1)
-            y (v/success 0)
-            z (v/failure ":-(")]
-        (is (= (v/failure "Odd" "Non-zero")
-               (v/unless x (even? x "Odd") (zero? x "Non-zero"))))
-        (is (= (v/success 0) (v/unless y (even? y "Odd") (zero? y "Non-zero"))))
-        (is (= (v/failure ":-(") (v/unless z (even? z "Odd") (zero? z "Non-zero"))))))))
+  (v/with-lift v/check* [even? zero?]
+    (testing "Positive checks"
+      (is (= (v/failure "Odd") ((even? "Odd") (v/success 1))))
+      (is (= (v/success 2) ((even? "Odd") (v/success 2))))
+      (is (= (v/failure ":-(") ((even? "Odd") (v/failure ":-(")))))
+    (testing "Multiple positive checks"
+      (is (= (v/failure "Odd" "Non-zero") (-> (v/success 1) (v/unless (even? "Odd") (zero? "Non-zero")))))
+      (is (= (v/success 0) (-> (v/success 0) (v/unless (even? "Odd") (zero? "Non-zero")))))
+      (is (= (v/failure ":-(") (-> (v/failure ":-(") (v/unless (even? "Odd") (zero? "Non-zero"))))))))
 
 (deftest trying
   (is (= (v/failure "Couldn't parse.")
