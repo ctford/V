@@ -67,7 +67,8 @@
 (defn unless
   "Return v unless there are errors in vs."
   [v & checks]
-  (v-apply (constantly v) ((apply juxt checks) v)))
+  (with-lift (partial apply juxt) [checks]
+    (v-apply (constantly v) (checks v))))
 
 (defn extract
   "Apply a function to a validation value, returning an error on nil."
