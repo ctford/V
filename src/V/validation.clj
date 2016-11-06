@@ -44,6 +44,15 @@
   `(let [~@(interleave fs (for [f fs] `(~lift ~f)))]
      ~@exprs))
 
+(defn check*
+  "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
+  [ok?]
+  (fn [x error]
+    (cond
+      (errors x) x
+      (-> x value ok?) x
+      :otherwise (failure error))))
+
 (defn check
   "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
   ([x] x)
@@ -53,6 +62,11 @@
        (errors x) x
        (-> x value ok?) others
        :otherwise (->> others errors (apply failure error))))))
+
+(defn unless
+  "Return v unless there are errors in vs."
+  [v & vs]
+  (v-apply (constantly v) vs))
 
 (defn extract
   "Apply a function to a validation value, returning an error on nil."
