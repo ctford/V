@@ -56,13 +56,8 @@
 
 (defn check
   "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
-  ([x] x)
-  ([x ok? error & other-checks]
-   (let [others (apply check x other-checks)]
-     (cond
-       (errors x) x
-       (-> x value ok?) others
-       :otherwise (->> others errors (apply failure error))))))
+  [x ok? error]
+  (((check* ok?) error) x))
 
 (defn unless
   "Return v unless there are errors in vs."
