@@ -74,14 +74,6 @@
   [x v]
   (if (errors x) (success v) x))
 
-(defmacro catch-exception
-  "Apply a function to validation values, returning an error if a specified exception is thrown."
-  [exception-type f error & args]
-  `(try
-     (fmap ~f ~@args)
-     (catch ~exception-type _#
-       (failure ~error))))
-
 (defmacro catch-exception*
   "Apply a function to validation values, returning an error if a specified exception is thrown."
   [exception-type]
@@ -91,3 +83,8 @@
          (apply fmap f# args#)
          (catch ~exception-type _#
            (failure error#))))))
+
+(defmacro catch-exception
+  "Apply a function to validation values, returning an error if a specified exception is thrown."
+  [exception-type f error & args]
+  `(((catch-exception* ~exception-type) ~f) ~error ~@args))
