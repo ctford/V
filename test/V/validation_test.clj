@@ -4,17 +4,11 @@
     [V.validation :as v]))
 
 (deftest mapping
-  (testing "Fmapping"
-    (is (= (v/success 3) (v/fmap + (v/success 1) (v/success 2))))
-    (is (= (v/failure ":-(") (v/fmap + (v/failure ":-(") (v/success 2))))
-    (is (= (v/failure ":-(") (v/fmap + (v/success 1) (v/failure ":-("))))
-    (is (= (v/failure ":-|" ":-/" ":-(") (v/fmap + (v/failure ":-/") (v/failure ":-(") (v/failure ":-|")))))
-  (testing "Lifting"
-    (v/lift v/fmap* [+]
-      (is (= (v/success 3) (+ (v/success 1) (v/success 2))))
-      (is (= (v/failure ":-(") (+ (v/failure ":-(") (v/success 2))))
-      (is (= (v/failure ":-(") (+ (v/success 1) (v/failure ":-("))))
-      (is (= (v/failure ":-|" ":-/" ":-(") (+ (v/failure ":-/") (v/failure ":-(") (v/failure ":-|")))))) )
+  (v/lift v/fmap* [+]
+    (is (= (v/success 3) (+ (v/success 1) (v/success 2))))
+    (is (= (v/failure ":-(") (+ (v/failure ":-(") (v/success 2))))
+    (is (= (v/failure ":-(") (+ (v/success 1) (v/failure ":-("))))
+    (is (= (v/failure ":-|" ":-/" ":-(") (+ (v/failure ":-/") (v/failure ":-(") (v/failure ":-|"))))) )
 
 (deftest checking
   (v/lift v/check* [even? zero?]
