@@ -27,14 +27,14 @@
       (is (= (v/success 0) (-> (v/success 0) (v/unless (even? "Odd") (zero? "Non-zero")))))
       (is (= (v/failure ":-(") (-> (v/failure ":-(") (v/unless (even? "Odd") (zero? "Non-zero"))))))))
 
+(defn parse-int [s] (Integer/parseInt s))
+
 (deftest trying
-  (is (= (v/failure "Couldn't parse.")
-         (v/catch-exception NumberFormatException #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
-  (is (thrown?
-        NumberFormatException
-        (v/catch-exception NullPointerException #(Integer/parseInt %) "Couldn't parse." (v/success "foo"))))
-  (is (= (v/success 8)
-         (v/catch-exception NumberFormatException #(Integer/parseInt %) "Couldn't parse." (v/success "8")))))
+  (v/with-lift (v/catch-exception* NumberFormatException) [parse-int]
+    (is (= (v/failure "Couldn't parse.") (parse-int "Couldn't parse." (v/success "foo"))))
+    (is (= (v/success 8) (parse-int "Couldn't parse." (v/success "8")))))
+  (v/with-lift (v/catch-exception* NullPointerException) [parse-int]
+    (is (thrown? NumberFormatException (parse-int "Couldn't parse." (v/success "foo"))))))
 
 (deftest extracting
   (is (= (v/success 3) (-> (v/success {:x 3 :y 8}) (v/extract :x :whoops))))

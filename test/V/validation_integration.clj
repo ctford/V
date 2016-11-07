@@ -26,16 +26,17 @@
 (defn parse-interval [text]
   (v/with-lift v/lift [vector]
     (v/with-lift v/success [text]
-      (let [json  (v/catch-exception RuntimeException load-string [:json :invalid] text)
-            start (-> json
-                      (v/extract  :start [:start :missing])
-                      (parse-date :start))
-            end   (-> json
-                      (v/extract  :end [:end :missing])
-                      (v/default {:day 1 :month 1 :year 2017})
-                      (parse-date :end))]
-        (-> (vector start end)
-            (v/check #(.before (first %) (second %)) [:interval :invalid]))))))
+      (v/with-lift (v/catch-exception* RuntimeException) [load-string]
+        (let [json  (load-string [:json :invalid] text)
+              start (-> json
+                        (v/extract  :start [:start :missing])
+                        (parse-date :start))
+              end   (-> json
+                        (v/extract  :end [:end :missing])
+                        (v/default {:day 1 :month 1 :year 2017})
+                        (parse-date :end))]
+          (-> (vector start end)
+              (v/check #(.before (first %) (second %)) [:interval :invalid])))))))
 
 (deftest integration
   (testing "Happy path"
