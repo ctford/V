@@ -33,15 +33,15 @@
   [f & args]
   (v-apply (comp success f) args))
 
-(defn lift
+(defn fmap*
   "Lift a function to apply to validation values, returning a validation value on the assumption of success."
   [f]
   (partial fmap f))
 
-(defmacro with-lift
+(defmacro lift
   "Shadow fs with lifted versions of themselves within a lexical scope."
-  [lift fs & exprs]
-  `(let [~@(interleave fs (for [f fs] `(~lift ~f)))]
+  [f xs & exprs]
+  `(let [~@(interleave xs (for [x xs] `(~f ~x)))]
      ~@exprs))
 
 (defn check*
@@ -67,8 +67,7 @@
 (defn unless
   "Return v unless there are errors in vs."
   [v & checks]
-  (with-lift (partial apply juxt) [checks]
-    (v-apply (constantly v) (checks v))))
+  (v-apply (constantly v) ((apply juxt checks) v)))
 
 (defn extract
   "Apply a function to a validation value, returning an error on nil."
