@@ -30,9 +30,8 @@
 
 (defn fmap
   "Lift an ordinary function to accept lifted arguments and return a successful result."
-  [f]
-  (fn [& args]
-    (v-apply (comp success f) args)))
+  ([f] (partial fmap f))
+  ([f & args] (v-apply (comp success f) args)))
 
 (defn lift-let [syms]
   (mapcat
@@ -68,10 +67,10 @@
 (defn extract
   "Apply a function to a lifted value, returning an error on nil."
   [x f error]
-  (-> ((fmap f) x) (check (comp not nil?) error)))
+  (-> (fmap f x) (check (comp not nil?) error)))
 
 (defn default
-  "Turn a liften value into a success if it's a failure."
+  "Turn a lifted value into a success if it's a failure."
   [x v]
   (if (errors x) (success v) x))
 
@@ -81,6 +80,6 @@
   `(fn [f#]
      (fn [error# & args#]
        (try
-         (apply (fmap f#) args#)
+         (apply fmap f# args#)
          (catch ~exception-type _#
            (failure error#))))))
