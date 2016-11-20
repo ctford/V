@@ -22,7 +22,7 @@
   (when (= k :errors) v))
 
 (defn v-apply
-  "Apply an ordinary function to lifted arguments."
+  "Apply an ordinary function to lifted arguments, collecting any errors."
   [f args]
   (if-let [combined-errors (->> args (map errors) (reduce set/union nil))]
     (apply failure combined-errors)
@@ -46,7 +46,7 @@
      ~@body))
 
 (defn check*
-  "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
+  "Lift a predicate to take a validation value, returning either the original value or an error."
   [ok?]
   (fn [error]
     (fn [x]
@@ -56,22 +56,22 @@
         :otherwise (failure error)))))
 
 (defn check
-  "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
+  "Apply a predicate to take a validation value, returning either the original value or an error."
   [x ok? error]
   (((check* ok?) error) x))
 
 (defn unless
-  "Return v unless there are errors in vs."
+  "Return v unless there are errors from applying the checks."
   [v & checks]
   (v-apply (constantly v) ((apply juxt checks) v)))
 
 (defn extract
-  "Apply a function to a validation value, returning an error on nil."
+  "Apply a function to a lifted value, returning an error on nil."
   [x f error]
   (-> ((fmap f) x) (check (comp not nil?) error)))
 
 (defn default
-  "Give a validation value a default value if it's an error."
+  "Turn a liften value into a success if it's a failure."
   [x v]
   (if (errors x) (success v) x))
 
