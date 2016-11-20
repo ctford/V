@@ -14,7 +14,7 @@
   (fn [x] (and (number? x) (<= a x b))))
 
 (defn parse-date [m k]
-  (v/lift v/fmap* [-]
+  (v/lift [v/fmap* [-]]
     (let [day   (-> m (v/extract :day                [k :missing-day])
                       (v/check   (within? 1 31)      [k :bad-date]))
           month (-> m (v/extract :month              [k :missing-month])
@@ -24,9 +24,9 @@
       (date k (- year (v/success 1900)) month day))))
 
 (defn parse-interval [text]
-  (v/lift v/fmap* [vector]
-    (v/lift v/success [text]
-      (v/lift (v/catch-exception* RuntimeException) [load-string]
+  (v/lift [v/fmap* [vector]
+           v/success [text]
+          (v/catch-exception* RuntimeException) [load-string]]
         (let [json  (load-string [:json :invalid] text)
               start (-> json
                         (v/extract  :start [:start :missing])
@@ -36,7 +36,7 @@
                         (v/default {:day 1 :month 1 :year 2017})
                         (parse-date :end))]
           (-> (vector start end)
-              (v/check #(.before (first %) (second %)) [:interval :invalid])))))))
+              (v/check #(.before (first %) (second %)) [:interval :invalid])))))
 
 (deftest integration
   (testing "Happy path"

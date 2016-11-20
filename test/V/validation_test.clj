@@ -4,14 +4,14 @@
     [V.validation :as v]))
 
 (deftest mapping
-  (v/lift v/fmap* [+]
+  (v/lift [v/fmap* [+]]
     (is (= (v/success 3) (+ (v/success 1) (v/success 2))))
     (is (= (v/failure ":-(") (+ (v/failure ":-(") (v/success 2))))
     (is (= (v/failure ":-(") (+ (v/success 1) (v/failure ":-("))))
     (is (= (v/failure ":-|" ":-/" ":-(") (+ (v/failure ":-/") (v/failure ":-(") (v/failure ":-|"))))) )
 
 (deftest checking
-  (v/lift v/check* [even? zero?]
+  (v/lift [v/check* [even? zero?]]
     (testing "Positive checks"
       (is (= (v/failure "Odd") ((even? "Odd") (v/success 1))))
       (is (= (v/success 2) ((even? "Odd") (v/success 2))))
@@ -24,10 +24,10 @@
 (defn parse-int [s] (Integer/parseInt s))
 
 (deftest trying
-  (v/lift (v/catch-exception* NumberFormatException) [parse-int]
+  (v/lift [(v/catch-exception* NumberFormatException) [parse-int]]
     (is (= (v/failure "Couldn't parse.") (parse-int "Couldn't parse." (v/success "foo"))))
     (is (= (v/success 8) (parse-int "Couldn't parse." (v/success "8")))))
-  (v/lift (v/catch-exception* NullPointerException) [parse-int]
+  (v/lift [(v/catch-exception* NullPointerException) [parse-int]]
     (is (thrown? NumberFormatException (parse-int "Couldn't parse." (v/success "foo"))))))
 
 (deftest extracting

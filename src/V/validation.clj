@@ -38,11 +38,17 @@
   [f]
   (partial fmap f))
 
+(defn lift-let [syms]
+  (if-let [[f xs & others] syms]
+    (concat (mapcat #(list % (list f %)) xs)
+            (lift-let others))
+    []))
+
 (defmacro lift
   "Shadow fs with lifted versions of themselves within a lexical scope."
-  [f xs & exprs]
-  `(let [~@(interleave xs (for [x xs] `(~f ~x)))]
-     ~@exprs))
+  [bindings & body]
+  `(let ~(vec (lift-let bindings))
+     ~@body))
 
 (defn check*
   "Apply a predicate to a validation value, returning the original value if it succeeds or an error if it fails."
