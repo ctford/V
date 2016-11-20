@@ -45,7 +45,7 @@
   `(let ~(vec (lift-let bindings))
      ~@body))
 
-(defn check*
+(defn checker
   "Lift a predicate to take a validation value, returning either the original value or an error."
   [ok?]
   (fn [error]
@@ -58,7 +58,7 @@
 (defn check
   "Apply a predicate to take a validation value, returning either the original value or an error."
   [x ok? error]
-  (((check* ok?) error) x))
+  (((checker ok?) error) x))
 
 (defn unless
   "Return v unless there are errors from applying the checks."
