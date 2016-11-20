@@ -24,10 +24,10 @@
 (defn parse-int [s] (Integer/parseInt s))
 
 (deftest trying
-  (v/lift [(v/catch-exception* NumberFormatException) [parse-int]]
+  (v/lift [(v/catch-exception NumberFormatException) [parse-int]]
     (is (= (v/failure "Couldn't parse.") (parse-int "Couldn't parse." (v/success "foo"))))
     (is (= (v/success 8) (parse-int "Couldn't parse." (v/success "8")))))
-  (v/lift [(v/catch-exception* NullPointerException) [parse-int]]
+  (v/lift [(v/catch-exception NullPointerException) [parse-int]]
     (is (thrown? NumberFormatException (parse-int "Couldn't parse." (v/success "foo"))))))
 
 (deftest extracting

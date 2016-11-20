@@ -4,11 +4,8 @@
     [V.validation :as v]))
 
 (defn date [k y m d]
-  (v/catch-exception
-    ClassCastException
-    #(java.util.Date. %1 %2 %3)
-    [k :bad-date]
-    y m d))
+  (let [parse ((v/catch-exception ClassCastException) #(java.util.Date. %1 %2 %3))]
+    (parse [k :bad-date] y m d)))
 
 (defn within? [a b]
   (fn [x] (and (number? x) (<= a x b))))
@@ -26,7 +23,7 @@
 (defn parse-interval [text]
   (v/lift [v/fmap [vector]
            v/success [text]
-          (v/catch-exception* RuntimeException) [load-string]]
+          (v/catch-exception RuntimeException) [load-string]]
         (let [json  (load-string [:json :invalid] text)
               start (-> json
                         (v/extract  :start [:start :missing])
