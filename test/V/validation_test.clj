@@ -11,7 +11,7 @@
     (is (= (v/failure ":-|" ":-/" ":-(") (+ (v/failure ":-/") (v/failure ":-(") (v/failure ":-|"))))) )
 
 (deftest checking
-  (v/lift [v/checker [even? zero?]]
+  (v/lift [v/check [even? zero?]]
     (testing "Positive checks"
       (is (= (v/failure "Odd") ((even? "Odd") (v/success 1))))
       (is (= (v/success 2) ((even? "Odd") (v/success 2))))
