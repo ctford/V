@@ -39,9 +39,9 @@
   (partial fmap f))
 
 (defn lift-let [syms]
-  (when-let [[f xs & others] syms]
-    (concat (interleave xs (map (partial list f) xs))
-            (lift-let others))))
+  (mapcat
+    (fn [[f xs]] (interleave xs (map (partial list f) xs)))
+    (partition 2 syms)))
 
 (defmacro lift
   "Shadow fs with lifted versions of themselves within a lexical scope."
