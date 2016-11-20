@@ -2,41 +2,37 @@
   (:require [clojure.set :as set]))
 
 (defn success
-  "Return a successful validation value."
+  "Return a success."
   [x]
   [:value x])
 
 (defn value
-  "Return the value of a validation value, or nil if it's a failure."
+  "Get the value of a lifted value, or nil if it's a failure."
   [[k v]]
   (when (= k :value) v))
 
 (defn failure
-  "Return a failure validation value."
+  "Return a failure."
   [& errors]
   [:errors (set errors)])
 
 (defn errors
-  "Return the errors of a validation value, or nil if it's a success."
+  "Get the errors of a lifted value, or nil if it's a success."
   [[k v]]
   (when (= k :errors) v))
 
 (defn v-apply
-  "Apply a function to validation values."
+  "Apply an ordinary function to lifted arguments."
   [f args]
   (if-let [combined-errors (->> args (map errors) (reduce set/union nil))]
     (apply failure combined-errors)
     (->> args (map value) (apply f))))
 
 (defn fmap
-  "Apply a function to validation values, returning a validation value on the assumption of success."
-  [f & args]
-  (v-apply (comp success f) args))
-
-(defn fmap*
-  "Lift a function to apply to validation values, returning a validation value on the assumption of success."
+  "Lift an ordinary function to accept lifted arguments and return a successful result."
   [f]
-  (partial fmap f))
+  (fn [& args]
+    (v-apply (comp success f) args)))
 
 (defn lift-let [syms]
   (mapcat
@@ -44,7 +40,7 @@
     (partition 2 syms)))
 
 (defmacro lift
-  "Shadow fs with lifted versions of themselves within a lexical scope."
+  "Shadow bindings with lifted versions of themselves within a lexical scope."
   [bindings & body]
   `(let ~(vec (lift-let bindings))
      ~@body))
@@ -72,7 +68,7 @@
 (defn extract
   "Apply a function to a validation value, returning an error on nil."
   [x f error]
-  (-> (fmap f x) (check (comp not nil?) error)))
+  (-> ((fmap f) x) (check (comp not nil?) error)))
 
 (defn default
   "Give a validation value a default value if it's an error."
@@ -85,7 +81,7 @@
   `(fn [f#]
      (fn [error# & args#]
        (try
-         (apply fmap f# args#)
+         (apply (fmap f#) args#)
          (catch ~exception-type _#
            (failure error#))))))
 

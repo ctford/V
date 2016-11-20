@@ -4,7 +4,7 @@
     [V.validation :as v]))
 
 (deftest mapping
-  (v/lift [v/fmap* [+]]
+  (v/lift [v/fmap [+]]
     (is (= (v/success 3) (+ (v/success 1) (v/success 2))))
     (is (= (v/failure ":-(") (+ (v/failure ":-(") (v/success 2))))
     (is (= (v/failure ":-(") (+ (v/success 1) (v/failure ":-("))))
