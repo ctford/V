@@ -6,20 +6,24 @@
   [x]
   [:value x])
 
+(def success identity)
+
 (defn value
   "Get the value of a lifted value, or nil if it's a failure."
   [[k v]]
   (when (= k :value) v))
 
+(def value identity)
+
 (defn failure
   "Return a failure."
   [& errors]
-  [:errors (set errors)])
+  (-> (set errors) (with-meta {:failure true})))
 
 (defn errors
   "Get the errors of a lifted value, or nil if it's a success."
-  [[k v]]
-  (when (= k :errors) v))
+  [x]
+  (when (-> x meta :failure) x))
 
 (defn v-apply
   "Apply an ordinary function to lifted arguments, collecting any errors."
