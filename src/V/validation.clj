@@ -1,41 +1,27 @@
 (ns V.validation
   (:require [clojure.set :as set]))
 
-(defn success
-  "Return a success."
-  [x]
-  [:value x])
-
-(def success identity)
-
-(defn value
-  "Get the value of a lifted value, or nil if it's a failure."
-  [[k v]]
-  (when (= k :value) v))
-
-(def value identity)
-
 (defn failure
   "Return a failure."
   [& errors]
-  (-> (set errors) (with-meta {:failure true})))
+  (with-meta (set errors) {::failure true}))
 
 (defn errors
   "Get the errors of a lifted value, or nil if it's a success."
   [x]
-  (when (-> x meta :failure) x))
+  (when (-> x meta ::failure) x))
 
 (defn v-apply
   "Apply an ordinary function to lifted arguments, collecting any errors."
   [f args]
   (if-let [combined-errors (->> args (map errors) (reduce set/union nil))]
     (apply failure combined-errors)
-    (->> args (map value) (apply f))))
+    (apply f args)))
 
 (defn fmap
   "Lift an ordinary function to accept lifted arguments and return a successful result."
   ([f] (partial fmap f))
-  ([f & args] (v-apply (comp success f) args)))
+  ([f & args] (v-apply f args)))
 
 (defn lift-let [syms]
   (mapcat
@@ -55,7 +41,7 @@
   ([x ok? error]
    (cond
      (errors x) x
-     (-> x value ok?) x
+     (ok? x) x
      :otherwise (failure error))))
 
 (defn unless
@@ -71,7 +57,7 @@
 (defn default
   "Turn a lifted value into a success if it's a failure."
   [x v]
-  (if (errors x) (success v) x))
+  (if (errors x) v x))
 
 (defmacro catch-exception
   "Apply a function to validation values, returning an error if a specified exception is thrown."

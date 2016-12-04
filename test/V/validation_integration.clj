@@ -17,11 +17,10 @@
                       (v/check   (within? 1 12)      [k :bad-date]))
           year  (-> m (v/extract :year               [k :missing-year])
                       (v/check   (within? 1900 2017) [k :bad-year]))]
-      (date k (- year (v/success 1900)) month day))))
+      (date k (- year 1900) month day))))
 
 (defn parse-interval [text]
   (v/lift [v/fmap [vector]
-           v/success [text]
           (v/catch-exception RuntimeException) [load-string]]
         (let [json  (load-string [:json :invalid] text)
               start (-> json
@@ -36,7 +35,7 @@
 
 (deftest integration
   (testing "Happy path"
-    (is (= (v/success [(java.util.Date. 116 2 3) (java.util.Date. 116 3 4)])
+    (is (= [(java.util.Date. 116 2 3) (java.util.Date. 116 3 4)]
            (parse-interval "{:start {:day 3 :month 2 :year 2016} :end {:day 4 :month 3 :year 2016}}"))))
   (testing "Sad paths"
     (is (= (v/failure [:json :invalid])
