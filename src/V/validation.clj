@@ -34,9 +34,9 @@
       :otherwise (failure error))))
 
 (defn unless
-  "Return v unless there are errors from applying the checks."
-  [v & checks]
-  (v-apply (constantly v) ((apply juxt checks) v)))
+  "Return value unless there are errors from applying the checks."
+  [value & checks]
+  (v-apply (constantly value) ((apply juxt checks) value)))
 
 (defn extract
   "Apply a function, tolerating failures and turning nil into a failure."
