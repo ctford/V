@@ -4,7 +4,7 @@
 (defn failure
   "Return a failure."
   [& errors]
-  (with-meta (set errors) {::failure true}))
+  (-> (set errors) (with-meta {::failure true})))
 
 (defn errors
   "Get the errors of a lifted value, or nil if it's a success."
@@ -20,8 +20,8 @@
 
 (defn fmap
   "Lift an ordinary function to accept lifted arguments and return a successful result."
-  ([f] (partial fmap f))
-  ([f & args] (v-apply f args)))
+  [f]
+  (fn [& args] (v-apply f args)))
 
 (defn check
   "Lift a predicate to take a validation value, returning either the original value or an error."
@@ -41,7 +41,7 @@
 (defn extract
   "Apply a function to a lifted value, returning an error on nil."
   [x f error]
-  (-> (fmap f x) (check (comp not nil?) error)))
+  (-> ((fmap f) x) (check (comp not nil?) error)))
 
 (defn default
   "Turn a lifted value into a success if it's a failure."
@@ -56,6 +56,6 @@
   `(fn [f#]
      (fn [error# & args#]
        (try
-         (apply fmap f# args#)
+         (apply (fmap f#) args#)
          (catch ~exception-type _#
            (failure error#)))))))

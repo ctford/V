@@ -13,14 +13,14 @@ V works by lifting ordinary functions so that they operate on validation values:
        (+ 1 2)))
 
 (is (= 3
-       (v/fmap + 1 2)))
+       ((v/fmap +) 1 2)))
 ```
 
 The difference with ordinary function application is that the arguments can have errors. If they do, the errors are aggregated:
 
 ```clojure
 (is (= (v/failure ":-|" ":-/" ":-(")
-       (v/fmap + (v/failure ":-/") (v/failure ":-(") (v/failure ":-|"))))))
+       ((v/fmap +) (v/failure ":-/") (v/failure ":-(") (v/failure ":-|"))))))
 ```
 
 V can turn thrown exceptions into errors:
