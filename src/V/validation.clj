@@ -23,17 +23,6 @@
   ([f] (partial fmap f))
   ([f & args] (v-apply f args)))
 
-(defn lift-let [syms]
-  (mapcat
-    (fn [[f xs]] (interleave xs (map (partial list f) xs)))
-    (partition 2 syms)))
-
-(defmacro lift
-  "Shadow bindings with lifted versions of themselves within a lexical scope."
-  [bindings & body]
-  `(let ~(vec (lift-let bindings))
-     ~@body))
-
 (defn check
   "Lift a predicate to take a validation value, returning either the original value or an error."
   ([ok?] (fn [error] (check ok? error)))

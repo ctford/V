@@ -4,14 +4,15 @@
     [V.validation :as v]))
 
 (deftest mapping
-  (v/lift [v/fmap [+]]
+  (let [+ (v/fmap +)]
     (is (= 3 (+ 1 2)))
     (is (= (v/failure ":-(") (+ (v/failure ":-(") 2)))
     (is (= (v/failure ":-(") (+ 1 (v/failure ":-("))))
     (is (= (v/failure ":-|" ":-/" ":-(") (+ (v/failure ":-/") (v/failure ":-(") (v/failure ":-|"))))) )
 
 (deftest checking
-  (v/lift [v/check [even? zero?]]
+  (let [even? (v/check even?)
+        zero? (v/check zero?)]
     (testing "Positive checks"
       (is (= (v/failure "Odd") ((even? "Odd") 1)))
       (is (= 2 ((even? "Odd") 2)))
@@ -24,10 +25,10 @@
 (defn parse-int [s] (Integer/parseInt s))
 
 (deftest trying
-  (v/lift [(v/catch-exception NumberFormatException) [parse-int]]
+  (let [parse-int (v/catch-exception NumberFormatException parse-int)]
     (is (= (v/failure "Couldn't parse.") (parse-int "Couldn't parse." "foo")))
     (is (= 8 (parse-int "Couldn't parse." "8"))))
-  (v/lift [(v/catch-exception NullPointerException) [parse-int]]
+  (let [parse-int (v/catch-exception NullPointerException parse-int)]
     (is (thrown? NumberFormatException (parse-int "Couldn't parse." "foo")))))
 
 (deftest extracting

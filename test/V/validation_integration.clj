@@ -10,28 +10,28 @@
   (fn [x] (and (number? x) (<= a x b))))
 
 (defn parse-date [m k]
-  (v/lift [v/fmap [-]]
-    (let [day   (-> m (v/extract :day                [k :missing-day])
-                      (v/check   (within? 1 31)      [k :bad-date]))
-          month (-> m (v/extract :month              [k :missing-month])
-                      (v/check   (within? 1 12)      [k :bad-date]))
-          year  (-> m (v/extract :year               [k :missing-year])
-                      (v/check   (within? 1900 2017) [k :bad-year]))]
-      (date k (- year 1900) month day))))
+  (let [- (v/fmap -)
+        day   (-> m (v/extract :day            [k :missing-day])
+                  (v/check (within? 1 31)      [k :bad-date]))
+        month (-> m (v/extract :month          [k :missing-month])
+                  (v/check (within? 1 12)      [k :bad-date]))
+        year  (-> m (v/extract :year           [k :missing-year])
+                  (v/check (within? 1900 2017) [k :bad-year]))]
+    (date k (- year 1900) month day)))
 
 (defn parse-interval [text]
-  (v/lift [v/fmap [vector]
-          (v/catch-exception RuntimeException) [load-string]]
-        (let [json  (load-string [:json :invalid] text)
-              start (-> json
-                        (v/extract  :start [:start :missing])
-                        (parse-date :start))
-              end   (-> json
-                        (v/extract  :end [:end :missing])
-                        (v/default {:day 1 :month 1 :year 2017})
-                        (parse-date :end))]
-          (-> (vector start end)
-              (v/check #(.before (first %) (second %)) [:interval :invalid])))))
+  (let [vector (v/fmap vector)
+        load-string (v/catch-exception RuntimeException load-string)
+        json  (load-string [:json :invalid] text)
+        start (-> json
+                  (v/extract  :start [:start :missing])
+                  (parse-date :start))
+        end   (-> json
+                  (v/extract  :end [:end :missing])
+                  (v/default {:day 1 :month 1 :year 2017})
+                  (parse-date :end))]
+    (-> (vector start end)
+        (v/check #(.before (first %) (second %)) [:interval :invalid]))))
 
 (deftest integration
   (testing "Happy path"
