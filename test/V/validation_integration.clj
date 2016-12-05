@@ -20,6 +20,7 @@
 (defn parse-interval [text]
   (let [vector (v/fmap vector)
         load-string (v/catch-exception RuntimeException load-string [:json :invalid])
+        in-order? (v/check #(.before (first %) (second %)) [:interval :invalid])
         json  (load-string text)
         start (-> json
                   (v/extract  :start [:start :missing])
@@ -28,8 +29,7 @@
                   (v/extract  :end [:end :missing])
                   (v/default {:day 1 :month 1 :year 2017})
                   (parse-date :end))]
-    (-> (vector start end)
-        ((v/check #(.before (first %) (second %)) [:interval :invalid])))))
+    (-> (vector start end) in-order?)))
 
 (deftest integration
   (testing "Happy path"
