@@ -25,11 +25,11 @@
 (defn parse-int [s] (Integer/parseInt s))
 
 (deftest trying
-  (let [parse-int (v/catch-exception NumberFormatException parse-int)]
-    (is (= (v/failure "Couldn't parse.") (parse-int "Couldn't parse." "foo")))
-    (is (= 8 (parse-int "Couldn't parse." "8"))))
-  (let [parse-int (v/catch-exception NullPointerException parse-int)]
-    (is (thrown? NumberFormatException (parse-int "Couldn't parse." "foo")))))
+  (let [parse-int (v/catch-exception NumberFormatException parse-int "Couldn't parse.")]
+    (is (= (v/failure "Couldn't parse.") (parse-int "foo")))
+    (is (= 8 (parse-int "8"))))
+  (let [parse-int (v/catch-exception NullPointerException parse-int "Couldn't parse.")]
+    (is (thrown? NumberFormatException (parse-int "foo")))))
 
 (deftest extracting
   (is (= 3 (-> {:x 3 :y 8} (v/extract :x :whoops))))

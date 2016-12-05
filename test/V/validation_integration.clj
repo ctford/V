@@ -3,26 +3,24 @@
     [clojure.test :refer [deftest testing is]]
     [V.validation :as v]))
 
-(defn date [k y m d]
-  (v/catch-exception ClassCastException #(java.util.Date. %1 %2 %3) [k :bad-date] y m d))
-
 (defn within? [a b]
   (fn [x] (and (number? x) (<= a x b))))
 
 (defn parse-date [m k]
   (let [- (v/fmap -)
+        date (v/catch-exception ClassCastException #(java.util.Date. %1 %2 %3) [k :bad-date])
         day?   (v/check (within? 1 31)      [k :bad-date])
         month? (v/check (within? 1 12)      [k :bad-date])
         year?  (v/check (within? 1900 2017) [k :bad-year])
         day    (-> m (v/extract :day        [k :missing-day])   day?)
         month  (-> m (v/extract :month      [k :missing-month]) month?)
         year   (-> m (v/extract :year       [k :missing-year])  year?)]
-    (date k (- year 1900) month day)))
+    (date (- year 1900) month day)))
 
 (defn parse-interval [text]
   (let [vector (v/fmap vector)
-        load-string (v/catch-exception RuntimeException load-string)
-        json  (load-string [:json :invalid] text)
+        load-string (v/catch-exception RuntimeException load-string [:json :invalid])
+        json  (load-string text)
         start (-> json
                   (v/extract  :start [:start :missing])
                   (parse-date :start))
