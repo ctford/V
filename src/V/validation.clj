@@ -25,13 +25,12 @@
 
 (defn check
   "Lift a predicate to take a validation value, returning either the original value or an error."
-  ([ok?] (fn [error] (check ok? error)))
-  ([ok? error] (fn [x] (check x ok? error)))
-  ([x ok? error]
-   (cond
-     (errors x) x
-     (ok? x) x
-     :otherwise (failure error))))
+  [ok? error]
+  (fn [x]
+    (cond
+      (errors x) x
+      (ok? x) x
+      :otherwise (failure error))))
 
 (defn unless
   "Return v unless there are errors from applying the checks."
@@ -41,7 +40,8 @@
 (defn extract
   "Apply a function to a lifted value, returning an error on nil."
   [x f error]
-  (-> ((fmap f) x) (check (comp not nil?) error)))
+  (let [f (comp (check (comp not nil?) error) (fmap f))]
+    (f x)))
 
 (defn default
   "Turn a lifted value into a success if it's a failure."

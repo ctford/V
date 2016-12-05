@@ -11,12 +11,12 @@
 
 (defn parse-date [m k]
   (let [- (v/fmap -)
-        day   (-> m (v/extract :day            [k :missing-day])
-                  (v/check (within? 1 31)      [k :bad-date]))
-        month (-> m (v/extract :month          [k :missing-month])
-                  (v/check (within? 1 12)      [k :bad-date]))
-        year  (-> m (v/extract :year           [k :missing-year])
-                  (v/check (within? 1900 2017) [k :bad-year]))]
+        day?   (v/check (within? 1 31)      [k :bad-date])
+        month? (v/check (within? 1 12)      [k :bad-date])
+        year?  (v/check (within? 1900 2017) [k :bad-year])
+        day    (-> m (v/extract :day        [k :missing-day])   day?)
+        month  (-> m (v/extract :month      [k :missing-month]) month?)
+        year   (-> m (v/extract :year       [k :missing-year])  year?)]
     (date k (- year 1900) month day)))
 
 (defn parse-interval [text]
@@ -31,7 +31,7 @@
                   (v/default {:day 1 :month 1 :year 2017})
                   (parse-date :end))]
     (-> (vector start end)
-        (v/check #(.before (first %) (second %)) [:interval :invalid]))))
+        ((v/check #(.before (first %) (second %)) [:interval :invalid])))))
 
 (deftest integration
   (testing "Happy path"

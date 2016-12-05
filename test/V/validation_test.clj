@@ -11,16 +11,16 @@
     (is (= (v/failure ":-|" ":-/" ":-(") (+ (v/failure ":-/") (v/failure ":-(") (v/failure ":-|"))))) )
 
 (deftest checking
-  (let [even? (v/check even?)
-        zero? (v/check zero?)]
+  (let [even? (v/check even? "Odd")
+        zero? (v/check zero? "Non-zero")]
     (testing "Positive checks"
-      (is (= (v/failure "Odd") ((even? "Odd") 1)))
-      (is (= 2 ((even? "Odd") 2)))
-      (is (= (v/failure ":-(") ((even? "Odd") (v/failure ":-(")))))
+      (is (= (v/failure "Odd") (even? 1)))
+      (is (= 2 (even? 2)))
+      (is (= (v/failure ":-(") (even? (v/failure ":-(")))))
     (testing "Multiple positive checks"
-      (is (= (v/failure "Odd" "Non-zero") (-> 1 (v/unless (even? "Odd") (zero? "Non-zero")))))
-      (is (= 0 (-> 0 (v/unless (even? "Odd") (zero? "Non-zero")))))
-      (is (= (v/failure ":-(") (-> (v/failure ":-(") (v/unless (even? "Odd") (zero? "Non-zero"))))))))
+      (is (= (v/failure "Odd" "Non-zero") (-> 1 (v/unless even? zero?))))
+      (is (= 0 (-> 0 (v/unless even? zero?))))
+      (is (= (v/failure ":-(") (-> (v/failure ":-(") (v/unless even? zero?)))))))
 
 (defn parse-int [s] (Integer/parseInt s))
 
