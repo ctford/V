@@ -2,29 +2,30 @@
   (:require [clojure.set :as set]))
 
 (defn failure
-  "Return a failure."
+  "Return a failure containing errors."
   [& errors]
   (-> (set errors) (with-meta {::failure true})))
 
 (defn errors
-  "Get the errors of a lifted value, or nil if it's a success."
+  "Get the errors of a failure, or nil if it's not a failure."
   [x]
   (when (-> x meta ::failure) x))
 
 (defn v-apply
-  "Apply an ordinary function to lifted arguments, collecting any errors."
+  "Apply a function, collecting the errors of any failures."
   [f args]
   (if-let [combined-errors (->> args (map errors) (reduce set/union nil))]
     (apply failure combined-errors)
     (apply f args)))
 
 (defn fmap
-  "Lift an ordinary function to accept lifted arguments and return a successful result."
+  "Lift an ordinary function to tolerate failures."
   [f]
-  (fn [& args] (v-apply f args)))
+  (fn [& args]
+    (v-apply f args)))
 
 (defn check
-  "Lift a predicate to take a validation value, returning either the original value or an error."
+  "Lift a predicate, tolerating failures and returning a failure if the predicate fails."
   [ok? error]
   (fn [x]
     (cond
@@ -38,21 +39,21 @@
   (v-apply (constantly v) ((apply juxt checks) v)))
 
 (defn extract
-  "Apply a function to a lifted value, returning an error on nil."
+  "Apply a function, tolerating failures and turning nil into a failure."
   [x f error]
   (let [f (comp (check (comp not nil?) error) (fmap f))]
     (f x)))
 
 (defn default
-  "Turn a lifted value into a success if it's a failure."
-  [x v]
-  (if (errors x) v x))
+  "Substitute a default value if x is a failure."
+  [x value]
+  (if (errors x) value x))
 
 (defmacro catch-exception
-  "Apply a function to validation values, returning an error if a specified exception is thrown."
+  "Apply a function, tolerating failures and turning exceptions into failures."
   [exception-type f error]
   `(fn [& args#]
      (try
-       (apply (fmap ~f) args#)
+       (v-apply ~f args#)
        (catch ~exception-type _#
          (failure ~error)))))
