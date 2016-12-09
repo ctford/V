@@ -9,31 +9,32 @@
     [k :bad-date]))
 
 (defn parse-date [m k]
-  (let [- (v/fmap -)
+  (let [from (v/fmap -)
         date (v/catch-exception ClassCastException #(java.util.Date. %1 %2 %3) [k :bad-date])
         day?   (within? 1 31 k)
         month? (within? 1 12 k)
         year?  (within? 1900 2017 k)
-        get (fn [m field] (v/extract m field [k :missing field]))
-        day    (-> m (get :day) day?)
-        month  (-> m (get :month) month?)
-        year   (-> m (get :year) year?)]
-    (date (- year 1900) month day)))
+
+        day   (-> m (v/extract :day   [k :missing :day])   day?)
+        month (-> m (v/extract :month [k :missing :month]) month?)
+        year  (-> m (v/extract :year  [k :missing :year])  year?)]
+    (date (from year 1900) month day)))
 
 (defn parse-interval [text]
-  (let [vector (v/fmap vector)
-        load-string (v/catch-exception RuntimeException load-string [:json :invalid])
+  (let [load-string (v/catch-exception RuntimeException load-string [:json :invalid])
         in-order? (v/check #(.before (first %) (second %)) [:interval :invalid])
-        get (fn [m field] (v/extract m field [field :missing]))
+        retrieve (fn [m field] (v/extract m field [field :missing]))
+
         json  (load-string text)
         start (-> json
-                  (get :start)
+                  (retrieve :start)
                   (parse-date :start))
         end   (-> json
-                  (get :end)
+                  (retrieve :end)
                   (v/default {:day 1 :month 1 :year 2017})
-                  (parse-date :end))]
-    (-> (vector start end) in-order?)))
+                  (parse-date :end))
+        interval (comp in-order? (v/fmap vector))]
+    (interval start end)))
 
 (deftest integration
 
