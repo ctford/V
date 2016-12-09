@@ -3,15 +3,17 @@
     [clojure.test :refer [deftest testing is]]
     [V.validation :as v]))
 
-(defn within? [a b]
-  (fn [x] (and (number? x) (<= a x b))))
+(defn within? [a b k]
+  (v/check
+    #(and (number? %) (<= a % b))
+    [k :bad-date]))
 
 (defn parse-date [m k]
   (let [- (v/fmap -)
         date (v/catch-exception ClassCastException #(java.util.Date. %1 %2 %3) [k :bad-date])
-        day?   (v/check (within? 1 31)      [k :bad-date])
-        month? (v/check (within? 1 12)      [k :bad-date])
-        year?  (v/check (within? 1900 2017) [k :bad-year])
+        day?   (within? 1 31 k)
+        month? (within? 1 12 k)
+        year?  (within? 1900 2017 k)
         get (fn [m field] (v/extract m field [k :missing field]))
         day    (-> m (get :day) day?)
         month  (-> m (get :month) month?)
